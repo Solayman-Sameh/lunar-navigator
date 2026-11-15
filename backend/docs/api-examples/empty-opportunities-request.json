@@ -1,0 +1,17 @@
+{
+  "earliest_landing_utc": "2026-12-01T00:00:00Z",
+  "search_window_h": 48.0,
+  "mission_duration_h": 24.0,
+  "candidate_site_ids": [
+    "connecting_ridge",
+    "shackleton_rim"
+  ],
+  "min_sun_fraction": 0.3,
+  "min_earth_fraction": 0.4,
+  "max_dark_h": 36.0,
+  "max_comm_gap_h": 48.0,
+  "search_step_h": 6.0,
+  "ranking_policy": "BEST_OVERALL",
+  "sampling_step_minutes": 10,
+  "observer_height_m": 2.0
+}

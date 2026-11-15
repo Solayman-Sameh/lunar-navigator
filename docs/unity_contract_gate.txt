@@ -1,0 +1,39 @@
+Contract Gate: 38 passed, 0 failed
+PASS Fixture deserialization succeeded
+PASS Fixture site ID parsed correctly
+PASS Fixture site name parsed correctly
+PASS Fixture data_status is ILLUSTRATIVE_DEMO
+PASS Requirement B: Horizon array length is exactly 360 entries
+PASS Requirement B: Horizon az_step_deg is exactly 1.0 degree
+PASS ValidateSiteData approves conforming 360-sample fixture
+PASS Requirement B: Non-360 horizon array length (180) strictly rejected
+PASS Requirement B: Non-1.0 az_step_deg (0.5) strictly rejected for v1 contract
+PASS Requirement A: Incomplete sectors parsed as object array
+PASS Requirement A: Incomplete sector contains valid az_from_deg=200.0 and az_to_deg=215.0
+PASS Requirement A: Out-of-range incomplete sector angles [-5, 400] rejected
+PASS Requirement C: Full double precision preserved in site longitude (lon_east_deg)
+PASS Requirement C: Full double precision preserved in ephemeris angles (sun_az_deg[1])
+PASS Requirement D: TimeAt index 0 matches t0_utc
+PASS Requirement D: TimeAt index 3 matches t0_utc + 1800s
+PASS Requirement D: IndexAt roundtrip matches index 3
+PASS Requirement D: IndexAt clamps upper bound to n - 1
+PASS Requirement D: Visibility flag sample 0 (el=2.5, sky=1.0) matches expected=True
+PASS Requirement D: Visibility flag sample 1 (el=-0.5, sky=1.0) matches expected=False
+PASS Requirement D: Visibility flag sample 2 (el=3.0, sky=1.0) matches expected=True
+PASS Requirement D: Visibility flag sample 3 (el=-1.0, sky=1.0) matches expected=False
+PASS Requirement D: Visibility flag sample 4 (el=2.0, sky=1.0) matches expected=True
+PASS Requirement D: Visibility flag sample 5 (el=0.0, sky=1.0) matches expected=False
+PASS Requirement D: Window metrics f_sun == 0.5 (3 sunlit of 6 samples)
+PASS Requirement D: Window metrics f_earth == 1.0 (6 of 6 samples)
+PASS Requirement D: Window metrics f_both == 0.5 (3 of 6 samples)
+PASS Requirement D: Window metrics dark_max_h == 0.1667h (1 sample run)
+PASS Requirement D: Window metrics comm_gap_max_h == 0.0h
+PASS Requirement D: Window exceeding available samples (a + m > n) strictly throws ArgumentOutOfRangeException
+PASS Requirement E: Null site analysis rejected
+PASS Requirement E: Empty site ID rejected
+PASS Requirement E: NaN in horizon elevations rejected
+PASS Requirement E: Implausible horizon elevation (>75 deg) rejected
+PASS Requirement E: Ephemeris array length mismatch rejected
+PASS Requirement F: Site with incomplete sectors flags HasIncompleteSectors = true
+PASS Requirement F: Azimuth 205.0 deg correctly detected inside incomplete sector [200, 215]
+PASS Requirement F: Azimuth 50.0 deg correctly detected outside incomplete sector [200, 215]

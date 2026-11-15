@@ -1,0 +1,103 @@
+{
+    "schema_version": 1,
+    "algorithm_version": "0.1.0",
+    "data_status": "ILLUSTRATIVE_DEMO",
+    "request": {
+        "earliest_landing_utc": "2026-12-01T00:00:00Z",
+        "search_days": 14,
+        "landing_step_h": 6,
+        "duration_h": 72,
+        "constraints": {
+            "min_sun_fraction": 0.30000001192092896,
+            "min_earth_fraction": 0.4000000059604645,
+            "max_dark_h": 36.0,
+            "max_comm_gap_h": 48.0
+        },
+        "constraints_note": "Illustrative, user-editable. Not NASA standards."
+    },
+    "candidate_sites": [
+        "malapert_mountain",
+        "shackleton_rim",
+        "connecting_ridge"
+    ],
+    "scoring_note": "score = 0.4*f_sun + 0.3*f_earth + 0.2*f_both + 0.1*(1-min(1,dark_max_h/duration_h))",
+    "best_overall": [
+        {
+            "rank": 1,
+            "site_id": "shackleton_rim",
+            "landing_utc": "2026-12-03T12:00:00Z",
+            "duration_h": 72,
+            "score": 84.5,
+            "f_sun": 0.8799999952316284,
+            "f_earth": 0.9200000166893005,
+            "f_both": 0.8500000238418579,
+            "dark_max_h": 6.0,
+            "comm_gap_max_h": 4.0
+        },
+        {
+            "rank": 2,
+            "site_id": "connecting_ridge",
+            "landing_utc": "2026-12-05T06:00:00Z",
+            "duration_h": 72,
+            "score": 78.19999694824219,
+            "f_sun": 0.7900000214576721,
+            "f_earth": 0.8500000238418579,
+            "f_both": 0.7400000095367432,
+            "dark_max_h": 12.0,
+            "comm_gap_max_h": 8.0
+        },
+        {
+            "rank": 3,
+            "site_id": "malapert_mountain",
+            "landing_utc": "2026-12-07T18:00:00Z",
+            "duration_h": 72,
+            "score": 71.0,
+            "f_sun": 0.699999988079071,
+            "f_earth": 0.800000011920929,
+            "f_both": 0.6499999761581421,
+            "dark_max_h": 18.0,
+            "comm_gap_max_h": 10.0
+        }
+    ],
+    "earliest_qualifying": [
+        {
+            "rank": 1,
+            "site_id": "shackleton_rim",
+            "landing_utc": "2026-12-01T06:00:00Z",
+            "duration_h": 72,
+            "score": 79.0,
+            "f_sun": 0.800000011920929,
+            "f_earth": 0.8799999952316284,
+            "f_both": 0.75,
+            "dark_max_h": 8.0,
+            "comm_gap_max_h": 6.0
+        },
+        {
+            "rank": 2,
+            "site_id": "malapert_mountain",
+            "landing_utc": "2026-12-01T12:00:00Z",
+            "duration_h": 72,
+            "score": 68.5,
+            "f_sun": 0.6499999761581421,
+            "f_earth": 0.7799999713897705,
+            "f_both": 0.6000000238418579,
+            "dark_max_h": 20.0,
+            "comm_gap_max_h": 12.0
+        },
+        {
+            "rank": 3,
+            "site_id": "connecting_ridge",
+            "landing_utc": "2026-12-02T00:00:00Z",
+            "duration_h": 72,
+            "score": 74.0,
+            "f_sun": 0.75,
+            "f_earth": 0.8199999928474426,
+            "f_both": 0.6800000071525574,
+            "dark_max_h": 14.0,
+            "comm_gap_max_h": 9.0
+        }
+    ],
+    "closest_misses": [],
+    "evaluated_count": 168,
+    "rejected_count": 124
+}

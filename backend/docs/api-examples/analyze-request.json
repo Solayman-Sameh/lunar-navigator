@@ -1,0 +1,7 @@
+{
+  "site_id": "connecting_ridge",
+  "landing_utc": "2027-02-15T06:00:00Z",
+  "mission_duration_h": 24.0,
+  "sampling_step_minutes": 10,
+  "observer_height_m": 2.0
+}

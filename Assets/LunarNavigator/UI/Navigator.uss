@@ -1,0 +1,563 @@
+:root {
+    color: #EAF0F7;
+    font-size: 13px;
+    -unity-font-definition: initial;
+}
+
+.overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+/* Header & Brand */
+.header-bar {
+    position: absolute;
+    left: 28px;
+    right: 28px;
+    top: 24px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.brand-block {
+    flex-direction: column;
+}
+
+.brand-row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.brand-title {
+    font-size: 19px;
+    letter-spacing: 3px;
+    -unity-font-style: bold;
+    color: #F0F4F8;
+    margin-right: 12px;
+}
+
+.eyebrow {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: #9AA7B8;
+    margin-top: 2px;
+    margin-bottom: 4px;
+    -unity-font-style: bold;
+}
+
+/* Scientific Data Status Badge */
+.status-badge {
+    padding: 3px 8px;
+    border-radius: 6px;
+    border-width: 1px;
+    flex-direction: row;
+    align-items: center;
+}
+
+.status-badge-illustrative {
+    background-color: rgba(245, 182, 66, 0.15);
+    border-color: rgba(245, 182, 66, 0.40);
+    color: #F5B642;
+}
+
+.status-badge-geometric {
+    background-color: rgba(90, 169, 245, 0.15);
+    border-color: rgba(90, 169, 245, 0.40);
+    color: #5AA9F5;
+}
+
+.status-badge-terrain {
+    background-color: rgba(111, 227, 176, 0.15);
+    border-color: rgba(111, 227, 176, 0.40);
+    color: #6FE3B0;
+}
+
+.status-badge-text {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    -unity-font-style: bold;
+}
+
+/* Mode Switch Pill */
+.mode-switch-container {
+    align-self: center;
+    flex-direction: row;
+    background-color: rgba(14, 18, 26, 0.88);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    padding: 3px;
+}
+
+.mode-pill {
+    padding: 6px 18px;
+    border-radius: 16px;
+    border-width: 0;
+    background-color: transparent;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: #9AA7B8;
+    -unity-font-style: bold;
+    transition-duration: 0.16s;
+}
+
+.mode-pill:hover {
+    color: #EAF0F7;
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+.mode-pill-active {
+    background-color: rgba(90, 169, 245, 0.28);
+    color: #EAF0F7;
+    border-width: 1px;
+    border-color: rgba(90, 169, 245, 0.50);
+}
+
+/* Nav Pills */
+.nav-pills {
+    flex-direction: row;
+    align-items: center;
+}
+
+.nav-pill {
+    background-color: rgba(14, 18, 26, 0.82);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.10);
+    border-radius: 8px;
+    padding: 7px 14px;
+    margin-left: 6px;
+    font-size: 11px;
+    color: #CAD5E2;
+    transition-duration: 0.15s;
+}
+
+.nav-pill:hover {
+    background-color: rgba(35, 48, 64, 0.95);
+    border-color: rgba(90, 169, 245, 0.6);
+    color: #FFFFFF;
+}
+
+/* Floating Glassmorphic Cards */
+.floating-card {
+    position: absolute;
+    background-color: rgba(12, 17, 24, 0.88);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 14px;
+}
+
+.floating-card-left {
+    top: 96px;
+    left: 28px;
+    width: 330px;
+}
+
+.floating-card-right {
+    top: 96px;
+    right: 28px;
+    left: auto;
+    width: 350px;
+}
+
+.card-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.card-title {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    -unity-font-style: bold;
+    color: #9AA7B8;
+}
+
+.icon-btn {
+    background-color: transparent;
+    border-width: 0;
+    color: #9AA7B8;
+    font-size: 14px;
+    padding: 0 4px;
+}
+
+.icon-btn:hover {
+    color: #FFFFFF;
+}
+
+/* Form Elements */
+.field-row {
+    margin-bottom: 8px;
+}
+
+.field-label {
+    font-size: 10px;
+    color: #8C9BAE;
+    margin-bottom: 3px;
+    letter-spacing: 0.5px;
+}
+
+.text-input,
+.text-input > .unity-text-field__input {
+    background-color: rgba(20, 28, 38, 0.95);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.14);
+    border-radius: 6px;
+    padding: 5px 8px;
+    color: #EAF0F7;
+    font-size: 12px;
+}
+
+.text-input:focus,
+.text-input > .unity-text-field__input:focus {
+    border-color: #5AA9F5;
+}
+
+#popup-modal {
+    background-color: rgb(11, 16, 24);
+    border-width: 1px;
+    border-color: rgba(90, 169, 245, 0.5);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.unity-base-field__label {
+    min-width: 85px;
+    width: 85px;
+    font-size: 11px;
+    color: #8C9BAE;
+}
+
+.chip-row {
+    flex-direction: row;
+    margin-top: 4px;
+    margin-bottom: 8px;
+}
+
+.chip-btn {
+    background-color: rgba(20, 28, 38, 0.7);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.10);
+    border-radius: 6px;
+    padding: 5px 10px;
+    margin-right: 6px;
+    font-size: 11px;
+    color: #9AA7B8;
+}
+
+.chip-btn:hover {
+    background-color: rgba(35, 48, 64, 0.9);
+    color: #EAF0F7;
+}
+
+.chip-btn-active {
+    background-color: rgba(90, 169, 245, 0.25);
+    border-color: #5AA9F5;
+    color: #EAF0F7;
+}
+
+/* Primary / Action Buttons */
+.btn-primary {
+    background-color: rgba(45, 100, 160, 0.9);
+    border-width: 1px;
+    border-color: rgba(90, 169, 245, 0.6);
+    border-radius: 8px;
+    padding: 8px 14px;
+    color: #FFFFFF;
+    font-size: 11px;
+    letter-spacing: 1px;
+    -unity-font-style: bold;
+    margin-top: 8px;
+}
+
+.btn-primary:hover {
+    background-color: rgba(60, 125, 195, 1.0);
+    border-color: #8CC4F8;
+}
+
+.btn-secondary {
+    background-color: rgba(20, 28, 38, 0.6);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 6px 12px;
+    color: #CAD5E2;
+    font-size: 11px;
+    margin-top: 6px;
+}
+
+.btn-secondary:hover {
+    background-color: rgba(30, 42, 56, 0.8);
+    color: #FFFFFF;
+}
+
+/* 2x2 Metrics Grid */
+.metrics-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-top: 6px;
+    margin-bottom: 8px;
+}
+
+.metric-cell {
+    width: 48%;
+    background-color: rgba(18, 25, 35, 0.85);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+}
+
+.metric-cell-label {
+    font-size: 9px;
+    color: #8C9BAE;
+    letter-spacing: 1px;
+    -unity-font-style: bold;
+}
+
+.metric-cell-value {
+    font-size: 19px;
+    -unity-font-style: bold;
+    color: #F0F4F8;
+    margin-top: 3px;
+    margin-bottom: 2px;
+}
+
+.metric-cell-status {
+    font-size: 9px;
+    color: #6FE3B0;
+    -unity-font-style: bold;
+}
+
+.metric-cell-status-fail {
+    color: #FF6B6B;
+}
+
+.metric-joint-line {
+    font-size: 10px;
+    color: #6FE3B0;
+    margin-bottom: 6px;
+}
+
+.metric-caption {
+    font-size: 9px;
+    color: #738294;
+    font-style: italic;
+    margin-bottom: 8px;
+}
+
+/* Opportunity Cards */
+.opp-card {
+    background-color: rgba(18, 25, 35, 0.85);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.10);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 8px;
+    transition-duration: 0.15s;
+}
+
+.opp-card:hover {
+    background-color: rgba(30, 42, 58, 0.95);
+    border-color: rgba(90, 169, 245, 0.6);
+}
+
+.opp-head {
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.opp-site {
+    font-size: 12px;
+    -unity-font-style: bold;
+    color: #EAF0F7;
+}
+
+.opp-score {
+    font-size: 12px;
+    -unity-font-style: bold;
+    color: #6FE3B0;
+}
+
+.opp-time {
+    font-size: 10px;
+    color: #9AA7B8;
+    margin-bottom: 6px;
+}
+
+.opp-metrics-row {
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.opp-metric-item {
+    font-size: 9px;
+    color: #CAD5E2;
+}
+
+/* Timeline Bottom Bar */
+.timeline-card {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    translate: -50% 0;
+    width: 880px;
+    background-color: rgba(12, 17, 24, 0.92);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.14);
+    border-radius: 12px;
+    padding: 8px 16px;
+}
+
+.timeline-header-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.time-clock {
+    font-size: 12px;
+    letter-spacing: 1px;
+    color: #EAF0F7;
+    -unity-font-style: bold;
+}
+
+.time-loss-status {
+    font-size: 10px;
+    color: #F5B642;
+    letter-spacing: 0.5px;
+}
+
+/* Surface Overlay HUD */
+.surface-overlay {
+    position: absolute;
+    left: 32px;
+    right: 32px;
+    bottom: 140px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.surface-readout {
+    background-color: rgba(12, 17, 24, 0.78);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+.surface-heading-ticks {
+    font-size: 11px;
+    color: #CAD5E2;
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+}
+
+.surface-body-status {
+    font-size: 10px;
+    color: #9AA7B8;
+    margin-top: 2px;
+}
+
+/* Generic Utilities */
+.hidden {
+    display: none;
+}
+
+.row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.subtle {
+    color: #7E8D9F;
+    font-size: 10px;
+}
+
+/* Markers on 3D Globe */
+.marker-pin {
+    position: absolute;
+    padding: 3px 8px;
+    background-color: rgba(12, 18, 26, 0.85);
+    border-width: 1px;
+    border-color: rgba(90, 169, 245, 0.4);
+    border-radius: 5px;
+    color: #CAD5E2;
+    font-size: 10px;
+}
+
+.marker-pin:hover {
+    border-color: #5AA9F5;
+    color: #FFFFFF;
+}
+
+.marker-pin-selected {
+    border-color: #F5B642;
+    color: #F5B642;
+    background-color: rgba(25, 22, 15, 0.9);
+}
+
+.marker-point {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+    background-color: #5AA9F5;
+}
+
+.marker-stem {
+    position: absolute;
+    height: 1px;
+    background-color: rgba(90, 169, 245, 0.4);
+    transform-origin: 0% 50%;
+}
+
+/* Mission Config & Online API */
+.mission-loading-box {
+    margin-top: 8px;
+    padding: 6px 10px;
+    background-color: rgba(25, 60, 110, 0.4);
+    border-width: 1px;
+    border-color: rgba(90, 169, 245, 0.5);
+    border-radius: 6px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mission-error-banner {
+    margin-top: 8px;
+    padding: 8px 10px;
+    background-color: rgba(120, 25, 25, 0.45);
+    border-width: 1px;
+    border-color: rgba(230, 80, 80, 0.8);
+    border-radius: 6px;
+}
+
+.btn-cancel-small {
+    background-color: rgba(220, 60, 60, 0.4);
+    border-width: 1px;
+    border-color: rgba(240, 100, 100, 0.7);
+    border-radius: 4px;
+    color: #FFFFFF;
+    font-size: 10px;
+    padding: 3px 8px;
+}
+
+.btn-cancel-small:hover {
+    background-color: rgba(240, 70, 70, 0.7);
+    color: #FFFFFF;
+}

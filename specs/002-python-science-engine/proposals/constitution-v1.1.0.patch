@@ -1,0 +1,44 @@
+--- a/.specify/memory/constitution.md
++++ b/.specify/memory/constitution.md
+@@ -1,4 +1,4 @@
+-<!-- Sync Impact: unratified template -> 1.0.0. Replaced all placeholder principles with ten mission principles. Added delivery constraints and verification governance. No dependent templates changed. -->
++<!-- Sync Impact: proposed additive 1.0.0 -> 1.1.0. Preserve principles I-X and Unity delivery constraints. Add scientific principles XI-XVII and scoped governance. Review dependent workflow/template impacts before authorized application. -->
+ # Lunar Navigator Constitution
+ 
+ ## Core Principles
+@@ -33,6 +33,27 @@
+ ### X. Working Delivery
+ Complete the P0 interaction loop before polishing visuals. Implement, validate and converge. Documentation and mockups do not count as functional delivery.
+ 
++### XI. Source-Based Scientific Results
++Production scientific values MUST derive from retained real source observations or declared deterministic models applied to those observations. Never invent coordinates, ephemerides, terrain, product identifiers, provenance, or successful checks. Synthetic fixtures MUST remain explicitly synthetic and cannot establish real-data validation.
++
++### XII. Verified Sites and Reference Frames
++Scientific sites MUST have exact sourced coordinates, verification status, units, longitude convention, lunar frame realization, and height reference. Unverified or fictional markers MUST NOT become supported scientific sites by relabeling. Observer, terrain and celestial directions MUST refer to the same verified physical location and declared local frame.
++
++### XIII. Explicit Time and Numerical Semantics
++Science MUST use declared UTC/time-scale conversion, sampling, endpoint and mission-window conventions. Retain available source and internal floating-point precision; distinguish scientific values from presentation rounding. Cross-engine comparisons MUST use an approved numerical policy with explicit tolerances and boundary handling.
++
++### XIV. Terrain Coverage and Uncertainty
++Missing or invalid terrain, coordinate failures and incomplete directions MUST remain explicit unknowns, never silently clear sky or blockage. Source/model status and completeness MUST remain distinct. Sensitivity and available uncertainty MUST be reported; unavailable error components MUST NOT be invented. A scenario with unknown required inputs MUST NOT be advertised as a confidently qualifying result.
++
++### XV. Deterministic, Explainable Mission Evaluation
++Evaluate the complete requested mission before qualification. Apply every mandatory requirement before scoring. Constraints MUST be user-configurable and labeled illustrative unless a cited mission authority establishes them. Preserve deterministic ranking, first-time priority for Earliest Qualifying, rejection reasons and honest zero/fewer-than-three results. Visibility MUST NOT be represented as guaranteed power, communications or landing safety.
++
++### XVI. Scientific Evidence and Reproducibility
++Retain source identities, original ephemerides, terrain metadata, parameters, algorithm version and check evidence sufficient to reproduce results. Synthetic analytic tests and independent real-data checks MUST remain separate. PASS requires an executed check; failed, skipped and unexecuted checks MUST be reported honestly. Compilation or document completion alone does not establish scientific functionality.
++
++### XVII. Shared Ownership and Validated Exchange
++Science and Unity MUST respect documented path and process ownership. Do not modify another agent's files, shared feature selection, shared configuration or branch. User-controlled contracts require approved coordinated changes. Stage and validate complete releases, confirm destination ownership, and publish only schema versions/quality representations supported by the consumer; never silently overwrite another process's outputs.
++
+ ## Delivery Constraints
+ Unity 6000.6.3f1, Windows desktop, C#, HDRP 17.6, Input System 1.20. Main scene: Assets/Scenes/LunarNavigator_Main.unity. Optional P2 work MUST NOT block core features.
+ 
+@@ -42,4 +63,6 @@
+ ## Governance
+ Review compliance at design and convergence. Amendments require rationale and impact review, with semantic versioning: major for incompatible principles, minor for new rules, patch for clarifications.
+ 
+-**Version**: 1.0.0 | **Ratified**: 2026-11-15 | **Last Amended**: 2026-11-15
++Principles XI–XVII apply to scientific computation and scientific exchange; they do not replace Unity principles I–X or change Unity delivery constraints. Scientific workflow stages require the user's stage authorization. Exact source/product verification remains an implementation obligation; approving a specification is not validation of its future results.
++
++**Version**: 1.1.0 | **Ratified**: 2026-11-15 | **Last Amended**: 2026-11-15

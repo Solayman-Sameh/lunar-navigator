@@ -1,0 +1,36 @@
+Live Opportunity Finder: 35 passed, 0 failed
+PASS LunarApplication found in scene
+PASS Check A: POST /opportunities returns 200 OK (actual: 200)
+PASS Check A: Response payload is non-empty
+PASS Check A: LiveOpportunitiesResponse deserialized cleanly
+PASS Check A: data_status is strictly GEOMETRIC_ONLY
+PASS Check A: qualifying_count > 0 (actual: 6)
+PASS Check A: At least 1 recommendation returned
+PASS Check A: Top recommendation has rank 1
+PASS Check A: Top site is malapert_mountain (actual: malapert_mountain)
+PASS Check A: Top score > 0.9 (actual: 1.000)
+PASS Check A: Top rec metrics f_sun == 1.0
+PASS Check A: Top rec metrics f_earth == 1.0
+PASS Check A: Top rec metrics dark_max_h == 0.0
+PASS Check A: OpportunityFinderView instantiated cleanly
+PASS Check A: Results scroll view contains summary + cards (children: 5)
+PASS Check B: Zero-qualifying search returns 200 OK (actual: 200)
+PASS Check B: Deserialized zero-qualifying response
+PASS Check B: qualifying_count == 0 (actual: 0)
+PASS Check B: recommendations array is empty
+PASS Check B: empty_reason provided: 'No scenario satisfies all four hard constraints.'
+PASS Check B: closest_misses provided (count: 5)
+PASS Check B: First closest miss lists failed constraints
+PASS Check B: UI rendered empty state box and closest misses
+PASS Check C: Selected site synchronized to malapert_mountain (actual: malapert_mountain)
+PASS Check C: Clock reset to landing instant (seconds == 0)
+PASS Check D: Exceeded 744h rejected with HTTP 422 (actual: 422)
+PASS Check D: 422 response contains invalid_request error detail
+PASS Check D: ErrorBanner is visibly displayed
+PASS Check D: LblErrorMessage shows exact failure status
+PASS Check D: ClearError hides ErrorBanner
+PASS Check E: Site Inspector POST /analyze returns 200 OK (actual: 200)
+PASS Check E: Site Inspector adapted successfully with no error
+PASS Check E: Site Inspector ephemeris n=145 (actual: 145)
+PASS Check E: Connecting Ridge f_sun == 0.0
+PASS Check E: Connecting Ridge f_earth == 1.0

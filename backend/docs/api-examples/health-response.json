@@ -1,0 +1,10 @@
+{
+  "status": "ok",
+  "api_profile": "lunar-analyze-v1",
+  "data_status": "GEOMETRIC_ONLY",
+  "service_start_utc": "2018-01-01T00:00:00Z",
+  "service_stop_utc": "2030-01-01T00:00:00Z",
+  "max_mission_duration_h": 744,
+  "max_instants": 10001,
+  "nasa_connectivity": "not probed by health endpoint"
+}

@@ -1,0 +1,24 @@
+{
+    "schema_version": 1,
+    "sites": [
+        {
+            "id": "shackleton_rim",
+            "name": "Shackleton Rim",
+            "file": "stub_shackleton_rim.json",
+            "data_status": "ILLUSTRATIVE_DEMO"
+        },
+        {
+            "id": "malapert_mountain",
+            "name": "Malapert Mountain",
+            "file": "stub_malapert_mountain.json",
+            "data_status": "ILLUSTRATIVE_DEMO"
+        },
+        {
+            "id": "connecting_ridge",
+            "name": "Connecting Ridge",
+            "file": "stub_connecting_ridge.json",
+            "data_status": "ILLUSTRATIVE_DEMO"
+        }
+    ],
+    "opportunities_file": "stub_opportunities.json"
+}

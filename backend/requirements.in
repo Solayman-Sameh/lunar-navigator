@@ -1,0 +1,15 @@
+# T001 core environment. Exact verified versions are captured in requirements.txt.
+# Install binary wheels only. All eight were manually installed by the user;
+# T001 rechecked them without reinstalling. Terrain validation still awaits T015.
+requests
+numpy
+pandas
+matplotlib
+pytest
+scipy
+rasterio
+pyproj
+# Live API and in-process HTTP integration tests.
+fastapi
+uvicorn
+httpx

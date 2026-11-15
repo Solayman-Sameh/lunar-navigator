@@ -1,0 +1,340 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "LunarNavigator Science API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sites": {
+      "get": {
+        "summary": "Sites",
+        "operationId": "sites_sites_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/opportunities": {
+      "post": {
+        "summary": "Opportunities",
+        "operationId": "opportunities_opportunities_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpportunitiesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analyze": {
+      "post": {
+        "summary": "Analyze",
+        "operationId": "analyze_analyze_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalyzeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AnalyzeRequest": {
+        "properties": {
+          "site_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Site Id"
+          },
+          "latitude_deg": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMaximum": 90.0,
+                "exclusiveMinimum": -90.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latitude Deg"
+          },
+          "longitude_deg": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 180.0,
+                "minimum": -180.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitude Deg"
+          },
+          "landing_utc": {
+            "type": "string",
+            "title": "Landing Utc"
+          },
+          "mission_duration_h": {
+            "type": "number",
+            "maximum": 744.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Mission Duration H"
+          },
+          "observer_height_m": {
+            "type": "number",
+            "maximum": 1000.0,
+            "minimum": 0.0,
+            "title": "Observer Height M",
+            "default": 2.0
+          },
+          "sampling_step_minutes": {
+            "type": "integer",
+            "maximum": 60.0,
+            "minimum": 1.0,
+            "title": "Sampling Step Minutes",
+            "default": 10
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "landing_utc",
+          "mission_duration_h"
+        ],
+        "title": "AnalyzeRequest"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "OpportunitiesRequest": {
+        "properties": {
+          "earliest_landing_utc": {
+            "type": "string",
+            "title": "Earliest Landing Utc"
+          },
+          "search_window_h": {
+            "type": "number",
+            "maximum": 744.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Search Window H"
+          },
+          "mission_duration_h": {
+            "type": "number",
+            "maximum": 744.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Mission Duration H"
+          },
+          "candidate_site_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 1,
+            "title": "Candidate Site Ids"
+          },
+          "min_sun_fraction": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Min Sun Fraction",
+            "default": 0.3
+          },
+          "min_earth_fraction": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Min Earth Fraction",
+            "default": 0.4
+          },
+          "max_dark_h": {
+            "type": "number",
+            "maximum": 744.0,
+            "minimum": 0.0,
+            "title": "Max Dark H",
+            "default": 36
+          },
+          "max_comm_gap_h": {
+            "type": "number",
+            "maximum": 744.0,
+            "minimum": 0.0,
+            "title": "Max Comm Gap H",
+            "default": 48
+          },
+          "search_step_h": {
+            "type": "number",
+            "maximum": 744.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Search Step H",
+            "default": 6.0
+          },
+          "ranking_policy": {
+            "type": "string",
+            "enum": [
+              "BEST_OVERALL",
+              "EARLIEST_QUALIFYING"
+            ],
+            "title": "Ranking Policy",
+            "default": "BEST_OVERALL"
+          },
+          "observer_height_m": {
+            "type": "number",
+            "maximum": 1000.0,
+            "minimum": 0.0,
+            "title": "Observer Height M",
+            "default": 2
+          },
+          "sampling_step_minutes": {
+            "type": "integer",
+            "maximum": 60.0,
+            "minimum": 1.0,
+            "title": "Sampling Step Minutes",
+            "default": 10
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "earliest_landing_utc",
+          "search_window_h",
+          "mission_duration_h",
+          "candidate_site_ids"
+        ],
+        "title": "OpportunitiesRequest"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

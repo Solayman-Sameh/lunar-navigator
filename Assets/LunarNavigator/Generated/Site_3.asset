@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8507ee293f8bb0d41847abd59bac1133, type: 3}
+  m_Name: Site_3
+  m_EditorClassIdentifier: Assembly-CSharp::LunarNavigator.LunarSite
+  id: connecting_ridge
+  displayName: Connecting Ridge (Site01 ref center)
+  latitude: -89.4632
+  longitude: -137.49
+  elevation: 0
+  description: NASA M2M-30044 Table A2.1-1 R01 polygon reference center. Coordinates retained exactly as tabulated.
+  provenance: "NASA M2M-30044 Baseline Table A2.1-1. Frame: MOON_ME/DE421. Coordinate citation only; no touchdown or ground-height certification."
