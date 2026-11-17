@@ -25,8 +25,21 @@ namespace LunarNavigator.Data
 
         public SiteAnalysis GetSite(string id)
         {
-            if (string.IsNullOrEmpty(id)) return Sites.Count > 0 ? Sites[0] : null;
+            if (string.IsNullOrEmpty(id)) return null;
             return Sites.Find(s => s.site != null && (s.site.id == id || s.site.id.Equals(id, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        public void ActivateSite(string id)
+        {
+            var site = GetSite(id);
+            DataStatus = site?.data_status ?? "NO_ANALYSIS";
+            IsDemoMode = site == null || site.data_status == "ILLUSTRATIVE_DEMO";
+            if (site?.ephemeris != null)
+            {
+                T0 = DateTime.Parse(site.ephemeris.t0_utc, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal);
+                StepSeconds = site.ephemeris.step_s;
+                Count = site.ephemeris.n;
+            }
         }
 
         public DateTime TimeAt(SiteAnalysis site, int i)

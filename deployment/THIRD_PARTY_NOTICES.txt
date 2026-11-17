@@ -1,0 +1,30 @@
+LunarNavigator Third-Party Software Notices & Acknowledgments
+=============================================================
+
+This application incorporates open-source and third-party software components:
+
+1. Python Software Foundation
+   Python 3.11 Embeddable Runtime (PSF License)
+   https://www.python.org/
+
+2. FastAPI & Starlette
+   FastAPI (MIT License) - Copyright (c) Sebastián Ramírez
+   Starlette (BSD 3-Clause) - Copyright (c) Encode OSS Ltd.
+
+3. Uvicorn
+   ASGI Web Server (BSD 3-Clause) - Copyright (c) Encode OSS Ltd.
+
+4. Pydantic & Pydantic Core
+   Data Validation Library (MIT License) - Copyright (c) Samuel Colvin
+
+5. AnyIO, Sniffio, H11, Click, Requests, Certifi, Charset-Normalizer, Urllib3
+   Respective Open-Source Licenses (MIT, Apache 2.0, BSD)
+
+6. Unity Technologies
+   Unity 6 Game Engine and Runtime Components
+   Subject to the Unity Software License
+   https://unity.com/legal/licenses/unity-software-license
+
+7. NASA / JPL Horizons System
+   Solar System Dynamics Group, Jet Propulsion Laboratory
+   Ephemerides accessed via public Horizons REST API (coord@301)

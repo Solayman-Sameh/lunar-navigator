@@ -1,1 +1,0 @@
-Windows build not verified successful. First build remained active in HDRP shader compilation. Windows denied Editor restart; no restart occurred. See DEVELOPMENT_REPORT.md for tested scope and pending source changes. User must cancel the active build or allow it to finish before main-thread verification can resume.

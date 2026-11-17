@@ -15,7 +15,7 @@ namespace LunarNavigator.Editor
         [MenuItem("Lunar Navigator/Upgrade Visual Production Pass")]
         public static string ApplyUpgrades()
         {
-            var app = UnityEngine.Object.FindFirstObjectByType<LunarApplication>();
+            var app = UnityEngine.Object.FindAnyObjectByType<LunarApplication>();
             if (!app) return "Error: LunarApplication not found in open scene.";
 
             float radius = app.config.radius;
@@ -191,7 +191,7 @@ namespace LunarNavigator.Editor
             }
 
             // 5. Update HDRP Volume Exposure & Shadow Settings
-            var vol = UnityEngine.Object.FindFirstObjectByType<Volume>();
+            var vol = UnityEngine.Object.FindAnyObjectByType<Volume>();
             if (vol && vol.sharedProfile)
             {
                 if (vol.sharedProfile.TryGet<Exposure>(out var exp))

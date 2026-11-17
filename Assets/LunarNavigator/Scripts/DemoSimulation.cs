@@ -97,7 +97,7 @@ namespace LunarNavigator
 
     public class DemoSimulation : MonoBehaviour
     {
-        public static readonly DateTime Epoch = new DateTime(2026, 11, 15, 0, 0, 0, DateTimeKind.Utc);
+        public static readonly DateTime Epoch = new DateTime(2026, 12, 1, 0, 0, 0, DateTimeKind.Utc);
         public const double Duration = 30 * 86400;
         public double seconds;
         public bool paused = true;

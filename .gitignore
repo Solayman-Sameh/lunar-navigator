@@ -1,12 +1,7 @@
-# ==============================================================================
-# LunarNavigator - Root .gitignore
-# Combined Unity 6 (HDRP) + Python (FastAPI/Science Engine)
-# NASA Space Apps Challenge
-# ==============================================================================
+# LunarNavigator: source, reproducible assets, and curated documentation only.
+# Downloadable binaries belong in GitHub Releases.
 
-# ------------------------------------------------------------------------------
-# 1. Unity Editor Reproducible Caches & Temporary Artifacts
-# ------------------------------------------------------------------------------
+# Unity caches and build output
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
@@ -16,29 +11,54 @@
 /[Uu]ser[Ss]ettings/
 /[Mm]emoryCaptures/
 /[Rr]ecordings/
-
-# Unity Asset Cache / Package Cache / Extracted Assets
 AssetBundles/
-/[Aa]ssets/[Aa]sset[Ss]tore[Tt]ools*
-
-# Unity Profiler / Crashlytics / Diagnostics
+/Assets/AssetStoreTools*
 crashlytics-build.properties
 sysinfo.txt
-*.pidb.meta
 
-# Standalone builds / executable packages (uploaded via GitHub Releases)
-*.apk
-*.aab
-*.unitypackage
-*.app
+# Local agent tooling and planning history
+/.agents/
+/.specify/
+/.codex/
+/specs/
+/AGENTS.md
 
-# ------------------------------------------------------------------------------
-# 2. IDE, Editor & Solution Project Files (Unity Auto-Generated)
-# ------------------------------------------------------------------------------
+# Development captures and historical acquisition/QA output
+/Screenshots/
+/Documentation/
+/tmp/
+/DEVELOPMENT_REPORT.md
+/LUNAR_NAVIGATOR_VS_EMPTY_HDRP.md
+
+# Curated public documentation (older files remain available locally)
+/docs/*
+!/docs/PROJECT_PROPOSAL.md
+!/docs/SCIENCE_BACKEND_REFERENCE.md
+!/docs/DATA_CONTRACT.md
+!/docs/ASSET_ATTRIBUTION.md
+!/docs/REPOSITORY_CONTENTS.md
+!/docs/RELEASE_NOTES_v1.1.0.md
+!/docs/RELEASE_VALIDATION.md
+/backend/docs/*
+!/backend/docs/API_CONTRACT.md
+!/backend/docs/api-examples/
+!/backend/docs/api-openapi.json
+
+# Public presentation media. The zero-byte MP4 is a local placeholder.
+/media/*
+!/media/README.md
+!/media/ui-overview.png
+!/media/app-icon.png
+
+# IDE output (the hand-authored launcher project is required)
 .vs/
 .vsconfig
 .idea/
+.vscode/
 *.csproj
+!/launcher/LunarLauncher.csproj
+/launcher/bin/
+/launcher/obj/
 *.unityproj
 *.sln
 *.suo
@@ -46,6 +66,7 @@ sysinfo.txt
 *.user
 *.userprefs
 *.pidb
+*.pidb.meta
 *.booproj
 *.svd
 *.pdb
@@ -53,80 +74,47 @@ sysinfo.txt
 *.opendb
 *.VC.db
 
-# Visual Studio Code (preserve team workspace configs if present)
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
-# ------------------------------------------------------------------------------
-# 3. Python Backend (FastAPI, Science Engine & Analysis)
-# ------------------------------------------------------------------------------
-# Virtual environments
+# Python environments, caches, and generated distributions
 .venv/
 venv/
 ENV/
 env/
-env.bak/
-venv.bak/
-
-# Bytecode, compilation and runtime cache
 __pycache__/
 *.py[cod]
 *$py.class
-
-# Pytest, coverage and temporary test artifacts
 .pytest_cache/
 pytest-cache-files-*/
 .coverage
 htmlcov/
 .tox/
 .nox/
-
-# Python build and distribution
 dist/
 build/
 *.egg-info/
 .eggs/
+/backend/tests/.work/
+/backend/data/api/
+/backend/data/cache/
+/backend/data/runs/
+/backend/data/horizons_inbox/
+/backend/data/horizons_output/
+/backend/data/dem/
+/deployment/build-manifest.json
+/deployment/COMMIT.md
+/deployment/VALIDATION.md
+/backend/MIGRATION_REPORT.md
 
-# NASA API runtime cache, temporary runs and diagnostic outputs
-backend/data/api/
-backend/data/cache/
-backend/data/runs/
-backend/data/horizons_output/
+# Release payloads and temporary archives
+*.exe
+*.zip
+*.7z
+*.apk
+*.aab
+*.unitypackage
+*.app
+*.mp4
 
-# ------------------------------------------------------------------------------
-# 4. Local Scratch, Temporary, and Archive Files
-# ------------------------------------------------------------------------------
-/tmp/
-/Screenshots.zip
-
-# ------------------------------------------------------------------------------
-# 5. Operating System Junk
-# ------------------------------------------------------------------------------
-# Windows
-Thumbs.db
-Thumbs.db:encryptable
-ehthumbs.db
-ehthumbs_vista.db
-[Dd]esktop.ini
-$RECYCLE.BIN/
-
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
-._*
-.Spotlight-V100
-.Trashes
-
-# Linux
-*~
-
-# ------------------------------------------------------------------------------
-# 6. Sensitive Files & Local Secrets
-# ------------------------------------------------------------------------------
+# Local configuration and secrets
 .env
 .env.*
 !.env.example
@@ -135,29 +123,17 @@ $RECYCLE.BIN/
 *.cert
 *.pfx
 
-# ------------------------------------------------------------------------------
-# 7. CRITICAL PROJECT ASSET & DOCUMENT PROTECTIONS (Explicit Whitelist)
-# ------------------------------------------------------------------------------
-# Ensure Unity Assets, Scenes, Shaders, Models, Textures, and Scripts are tracked
-!Assets/**
-!Assets/LunarNavigator/Generated/**
-!*.meta
-
-# Ensure Unity Project Settings and Package Manager configs are tracked
-!Packages/manifest.json
-!Packages/packages-lock.json
-!ProjectSettings/**
-
-# Ensure Scientific Backend sources, tests, contract docs, and datasets are tracked
-!backend/science/**
-!backend/src/**
-!backend/tests/**
-!backend/data/sites.json
-!backend/data/horizons_inbox/**
-!backend/requirements.txt
-!backend/docs/**
-
-# Ensure Team Documentation, Scientific References, Proposal & Manuals are tracked
-!docs/**
-!Documentation/**
-
+# OS-generated files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+*~

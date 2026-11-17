@@ -26,7 +26,7 @@ namespace LunarNavigator
         {var p=ScreenPoint(button);yield return Pointer(p);yield return Pointer(p,true);yield return Pointer(p);yield return null;yield return null;}
         IEnumerator Start()
         {
-            app=FindFirstObjectByType<LunarApplication>();
+            app=FindAnyObjectByType<LunarApplication>();
             keyboard=InputSystem.AddDevice<Keyboard>("LunarTestKeyboard");mouse=InputSystem.AddDevice<Mouse>("LunarTestMouse");keyboard.MakeCurrent();mouse.MakeCurrent();
             app.UI.Close();if(!app.UI.InterfaceVisible)app.UI.ToggleInterface();
             yield return KeyPress(Key.H);Check(app.UI.CurrentPopup=="Help","H opens help through Input System");

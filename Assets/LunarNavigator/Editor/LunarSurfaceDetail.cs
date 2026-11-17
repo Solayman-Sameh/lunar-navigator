@@ -9,7 +9,7 @@ namespace LunarNavigator.Editor
         [MenuItem("Lunar Navigator/Add Near Surface Geology")]
         public static string Apply()
         {
-            var app=Object.FindFirstObjectByType<LunarApplication>();var terrain=app.World.terrain;
+            var app=Object.FindAnyObjectByType<LunarApplication>();var terrain=app.World.terrain;
             if(terrain.transform.Find("Near-field regolith fragments"))return "Near-field geology already present";
             const string root="Assets/LunarNavigator/Generated/";
             var source=AssetDatabase.LoadAssetAtPath<Mesh>(root+"RockSource.asset");

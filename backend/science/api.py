@@ -12,7 +12,7 @@ from .models import Observer,HorizonsRequest,parse_utc,utc_text
 from .horizons import fetch_track,align_tracks,cache_key,request_identity,dump_json,SourceError
 from .visibility import AlignedTracks,visibility_series,mission_metrics
 from .coordinates import Horizon
-from .sites import load_catalog
+from .sites import load_catalog, get_sites_json_path
 
 BACKEND=Path(__file__).resolve().parents[1]
 MIN_DATE=parse_utc('2018-01-01T00:00:00Z')
@@ -51,7 +51,7 @@ class AnalyzeRequest(BaseModel):
 def coordinates(body):
     if body.site_id is None:
         return body.latitude_deg,body.longitude_deg,'CUSTOM_UNVERIFIED_DIAGNOSTIC_POINT'
-    catalog=load_catalog(json.loads((BACKEND/'data/sites.json').read_text(encoding='utf-8')))
+    catalog=load_catalog(json.loads(get_sites_json_path().read_text(encoding='utf-8')))
     if body.site_id not in catalog:
         raise HTTPException(422,detail={'code':'unknown_site','message':'Unknown catalog site_id'})
     try: site=catalog[body.site_id].require_verified()
@@ -113,11 +113,28 @@ def calculate_response(body,cache_dir,run_dir):
            'Live API profile is not the authoritative legacy Unity file contract.']}
 
 
-def create_app(storage_root=None):
+def create_app(storage_root=None, session_id=None):
+    import os
     from dataclasses import asdict
     from .sites import supported_catalog
     from .finder import OpportunitiesRequest,calculate_finder
-    storage=Path(storage_root) if storage_root is not None else BACKEND/'data/api'
+    if storage_root is not None:
+        storage = Path(storage_root)
+    elif os.environ.get("LUNAR_STORAGE_DIR"):
+        storage = Path(os.environ["LUNAR_STORAGE_DIR"])
+    else:
+        storage = BACKEND/'data/api'
+    storage = storage.resolve()
+    (storage / 'runs').mkdir(parents=True, exist_ok=True)
+    (storage / 'cache').mkdir(parents=True, exist_ok=True)
+    test_probe = storage / f'.write_test_{uuid.uuid4().hex}'
+    try:
+        test_probe.write_text('ok', encoding='utf-8')
+        test_probe.unlink()
+    except OSError as exc:
+        raise OSError(f"Configured scientific storage directory '{storage}' is not writable: {exc}") from exc
+
+    effective_session_id = session_id or os.environ.get("LUNAR_SESSION_ID")
     slots=threading.BoundedSemaphore(2)
     api=FastAPI(title='LunarNavigator Science API',version='1.0.0')
 
@@ -129,6 +146,9 @@ def create_app(storage_root=None):
     @api.get('/health')
     def health():
         return {'status':'ok','api_profile':'lunar-analyze-v1','data_status':'GEOMETRIC_ONLY',
+                'service_identity':'LunarNavigator-ScienceAPI',
+                'pid':os.getpid(),
+                'session_id':effective_session_id,
                 'service_start_utc':utc_text(MIN_DATE),'service_stop_utc':utc_text(MAX_DATE),
                 'max_mission_duration_h':744,'max_instants':10001,
                 'nasa_connectivity':'not probed by health endpoint'}

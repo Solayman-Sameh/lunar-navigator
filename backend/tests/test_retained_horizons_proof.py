@@ -9,7 +9,7 @@ from science.horizons import parse_response, align_tracks, request_identity, sha
 from science.models import utc_text
 
 pytestmark = pytest.mark.real_data
-RUN = Path(__file__).resolve().parents[1] / 'data/runs/local-horizons-20261115T182625Z-4a08a2a5'
+RUN = Path(__file__).resolve().parent / 'fixtures/horizons/real-diagnostic'
 
 
 @pytest.fixture(scope='module')
@@ -30,7 +30,7 @@ def test_real_http_and_original_byte_provenance(real_tracks):
         receipt=next(r for r in receipts if r['request']['target']==track.request.target)
         assert receipt['status']=='PASS' and receipt['http_status']==200
         assert receipt['request']==request_identity(track.request)
-        original=Path(receipt['raw_file']).read_bytes()
+        original=(RUN/receipt['raw_file']).read_bytes()
         assert original==(RUN/'raw'/(name+'.json')).read_bytes()
         assert sha256(original)==receipt['raw_sha256']==track.raw_sha256
         assert json.loads(original)['result']==(RUN/'raw'/(name+'-result.txt')).read_text(encoding='utf-8')
@@ -65,5 +65,5 @@ def test_real_csv_values_and_output_hashes(real_tracks):
     assert len(combined)==73
     validation=json.loads((RUN/'validation.json').read_text(encoding='utf-8'))
     for output in validation['outputs']:
-        assert sha256(Path(output['path']).read_bytes())==output['sha256']
+        assert sha256((RUN/output['path']).read_bytes())==output['sha256']
     assert (RUN/'elevations.png').read_bytes().startswith(b'\x89PNG\r\n\x1a\n')

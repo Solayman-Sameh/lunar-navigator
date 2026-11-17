@@ -11,8 +11,8 @@ namespace LunarNavigator.Data
     public class AnalyzeRequestPayload
     {
         public string site_id;
-        public double? latitude_deg;
-        public double? longitude_deg;
+        [NonSerialized] public double? latitude_deg;
+        [NonSerialized] public double? longitude_deg;
         public string landing_utc;
         public double mission_duration_h;
         public double observer_height_m = 2.0;
@@ -35,13 +35,13 @@ namespace LunarNavigator.Data
             }
             else if (latitude_deg.HasValue && longitude_deg.HasValue)
             {
-                sb.AppendFormat(CultureInfo.InvariantCulture, "\"latitude_deg\":{0:F6},\"longitude_deg\":{1:F6},",
+                sb.AppendFormat(CultureInfo.InvariantCulture, "\"latitude_deg\":{0:R},\"longitude_deg\":{1:R},",
                     latitude_deg.Value, longitude_deg.Value);
             }
 
             sb.AppendFormat(CultureInfo.InvariantCulture, "\"landing_utc\":\"{0}\",", landing_utc);
-            sb.AppendFormat(CultureInfo.InvariantCulture, "\"mission_duration_h\":{0:F3},", mission_duration_h);
-            sb.AppendFormat(CultureInfo.InvariantCulture, "\"observer_height_m\":{0:F1},", observer_height_m);
+            sb.AppendFormat(CultureInfo.InvariantCulture, "\"mission_duration_h\":{0:R},", mission_duration_h);
+            sb.AppendFormat(CultureInfo.InvariantCulture, "\"observer_height_m\":{0:R},", observer_height_m);
             sb.AppendFormat(CultureInfo.InvariantCulture, "\"sampling_step_minutes\":{0}", sampling_step_minutes);
             sb.Append("}");
             return sb.ToString();
@@ -64,6 +64,7 @@ namespace LunarNavigator.Data
                         if (Application.isPlaying) DontDestroyOnLoad(go);
                     }
                     _instance = go.GetComponent<LunarApiClient>() ?? go.AddComponent<LunarApiClient>();
+                    _instance.InitializeConfiguration();
                 }
                 return _instance;
             }
@@ -89,8 +90,163 @@ namespace LunarNavigator.Data
 
         public bool IsBusy => activeRequest != null && !activeRequest.isDone;
 
+        private bool configurationInitialized = false;
+        public string ConfigurationError { get; private set; }
+
+        public static bool TryParseAndValidateBackendUrl(string rawUrl, out string validUrl, out string errorMessage)
+        {
+            validUrl = null;
+            errorMessage = null;
+
+            if (string.IsNullOrWhiteSpace(rawUrl))
+            {
+                errorMessage = "Backend URL override cannot be empty or whitespace.";
+                return false;
+            }
+
+            rawUrl = rawUrl.Trim();
+
+            if (!Uri.TryCreate(rawUrl, UriKind.Absolute, out Uri uri))
+            {
+                errorMessage = $"Invalid URL format: '{rawUrl}'. Must be an absolute URL (e.g., http://127.0.0.1:8000).";
+                return false;
+            }
+
+            if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
+            {
+                errorMessage = $"Unsupported scheme '{uri.Scheme}' in '{rawUrl}'. Only HTTP (or HTTPS) is supported.";
+                return false;
+            }
+
+            if (uri.Port <= 0 || uri.Port > 65535)
+            {
+                errorMessage = $"Invalid or missing explicit port in '{rawUrl}'. Port must be between 1 and 65535.";
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(uri.UserInfo))
+            {
+                errorMessage = $"Credentials (user:pass) are not permitted in backend URL '{rawUrl}'.";
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(uri.Query))
+            {
+                errorMessage = $"Query parameters are not permitted in backend URL '{rawUrl}'.";
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(uri.Fragment))
+            {
+                errorMessage = $"URL fragments are not permitted in backend URL '{rawUrl}'.";
+                return false;
+            }
+
+            string host = uri.DnsSafeHost;
+            bool isLoopback = uri.IsLoopback ||
+                              string.Equals(host, "localhost", StringComparison.OrdinalIgnoreCase) ||
+                              string.Equals(host, "127.0.0.1", StringComparison.Ordinal) ||
+                              string.Equals(host, "::1", StringComparison.Ordinal);
+
+            if (!isLoopback)
+            {
+                errorMessage = $"Host '{host}' is not a local loopback address. For security and launcher-managed deployment, host must be 127.0.0.1 or localhost.";
+                return false;
+            }
+
+            validUrl = $"{uri.Scheme}://{uri.Host}:{uri.Port}";
+            return true;
+        }
+
+        public void InitializeConfiguration()
+        {
+            if (configurationInitialized) return;
+            configurationInitialized = true;
+
+            string explicitOverride = null;
+            string overrideSource = null;
+
+            // 1. Explicit command line arguments: --backend-url <url> or -backendUrl <url>
+            try
+            {
+                string[] args = System.Environment.GetCommandLineArgs();
+                if (args != null)
+                {
+                    for (int i = 0; i < args.Length; i++)
+                    {
+                        if (i < args.Length - 1 &&
+                            (string.Equals(args[i], "--backend-url", StringComparison.OrdinalIgnoreCase) ||
+                             string.Equals(args[i], "-backendUrl", StringComparison.OrdinalIgnoreCase)))
+                        {
+                            explicitOverride = args[i + 1];
+                            overrideSource = args[i];
+                            break;
+                        }
+                        else if (args[i].StartsWith("--backend-url=", StringComparison.OrdinalIgnoreCase))
+                        {
+                            explicitOverride = args[i].Substring("--backend-url=".Length);
+                            overrideSource = "--backend-url=";
+                            break;
+                        }
+                        else if (args[i].StartsWith("-backendUrl=", StringComparison.OrdinalIgnoreCase))
+                        {
+                            explicitOverride = args[i].Substring("-backendUrl=".Length);
+                            overrideSource = "-backendUrl=";
+                            break;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning("[LunarApiClient] Exception reading command line arguments: " + ex.Message);
+            }
+
+            // 2. LUNAR_BACKEND_URL environment variable
+            if (string.IsNullOrEmpty(explicitOverride))
+            {
+                try
+                {
+                    string envUrl = System.Environment.GetEnvironmentVariable("LUNAR_BACKEND_URL");
+                    if (!string.IsNullOrEmpty(envUrl))
+                    {
+                        explicitOverride = envUrl;
+                        overrideSource = "LUNAR_BACKEND_URL environment variable";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning("[LunarApiClient] Exception reading environment variable: " + ex.Message);
+                }
+            }
+
+            // 3. Apply or validate
+            if (!string.IsNullOrEmpty(explicitOverride))
+            {
+                if (TryParseAndValidateBackendUrl(explicitOverride, out string validUrl, out string err))
+                {
+                    baseUrl = validUrl;
+                    Debug.Log($"[LunarApiClient] Backend URL configured from {overrideSource}: {baseUrl}");
+                }
+                else
+                {
+                    ConfigurationError = $"Configuration Error: Invalid backend URL override via {overrideSource} ('{explicitOverride}'): {err}";
+                    Debug.LogError("[LunarApiClient] " + ConfigurationError);
+                    baseUrl = "http://invalid-backend-config.local:0";
+                }
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(baseUrl))
+                {
+                    baseUrl = "http://localhost:8000";
+                }
+            }
+        }
+
         private void Awake()
         {
+            InitializeConfiguration();
             if (_instance == null)
             {
                 _instance = this;
@@ -140,6 +296,11 @@ namespace LunarNavigator.Data
 
         private IEnumerator DoCheckHealth(Action<bool, string> onComplete)
         {
+            if (!string.IsNullOrEmpty(ConfigurationError))
+            {
+                onComplete?.Invoke(false, ConfigurationError);
+                yield break;
+            }
             string url = baseUrl.TrimEnd('/') + "/health";
             using var uwr = UnityWebRequest.Get(url);
             uwr.timeout = 5;
@@ -167,6 +328,11 @@ namespace LunarNavigator.Data
 
         private IEnumerator DoGetSites(Action<bool, string, string> onComplete)
         {
+            if (!string.IsNullOrEmpty(ConfigurationError))
+            {
+                onComplete?.Invoke(false, null, ConfigurationError);
+                yield break;
+            }
             string url = baseUrl.TrimEnd('/') + "/sites";
             using var uwr = UnityWebRequest.Get(url);
             uwr.timeout = 10;
@@ -197,6 +363,11 @@ namespace LunarNavigator.Data
 
         private IEnumerator DoPostAnalyze(AnalyzeRequestPayload payload, Action<bool, string, string> onComplete)
         {
+            if (!string.IsNullOrEmpty(ConfigurationError))
+            {
+                onComplete?.Invoke(false, null, ConfigurationError);
+                yield break;
+            }
             int token = ++currentAnalyzeToken;
             string endpoint = baseUrl.TrimEnd('/') + "/analyze";
             string jsonBody = payload.ToJson();
@@ -251,6 +422,11 @@ namespace LunarNavigator.Data
 
         private IEnumerator DoPostOpportunities(string jsonPayload, Action<bool, string, string> onComplete)
         {
+            if (!string.IsNullOrEmpty(ConfigurationError))
+            {
+                onComplete?.Invoke(false, null, ConfigurationError);
+                yield break;
+            }
             int token = ++currentOpportunitiesToken;
             string endpoint = baseUrl.TrimEnd('/') + "/opportunities";
             byte[] rawBytes = Encoding.UTF8.GetBytes(jsonPayload);

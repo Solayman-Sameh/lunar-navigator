@@ -1,1 +1,0 @@
-180 real Editor player frames; 2560x1440; mean 31.67ms; median 33.34ms; p95 47.77ms; GTX 1650. Editor overhead included, not standalone GPU benchmark.

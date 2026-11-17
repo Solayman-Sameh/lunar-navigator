@@ -127,7 +127,7 @@ namespace LunarNavigator.Editor
                         refList.Add(new ReferenceMetric
                         {
                             start_utc = m.start_utc,
-                            duration_h = m.duration_h,
+                            duration_h = (int)System.Math.Round(m.duration_h),
                             f_sun = Math.Round(m.f_sun, 4),
                             f_earth = Math.Round(m.f_earth, 4),
                             f_both = Math.Round(m.f_both, 4),

@@ -1,0 +1,20 @@
+{
+  "outputs": [
+    {
+      "path": "sun.csv",
+      "sha256": "412817f27e900b4865e2d085a637f93082d6727443262087ccd68ad4f36082c0"
+    },
+    {
+      "path": "earth.csv",
+      "sha256": "4ef0ff3122d9bc5a92245fa14832d82ff7306f365cc24f0d6bcb99b0d20fa939"
+    },
+    {
+      "path": "combined.csv",
+      "sha256": "a26861344736f1018a34d7ae6b6fc3dfef19daebb61fe6c2d408814d084bd3db"
+    },
+    {
+      "path": "elevations.png",
+      "sha256": "c18ad95dd4229e7fad1c860b7f5e7717f05920c537552cccc8de30587cd1d5c6"
+    }
+  ]
+}

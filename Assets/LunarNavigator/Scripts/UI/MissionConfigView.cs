@@ -35,6 +35,13 @@ namespace LunarNavigator.UI
         public double SelectedDurationHours { get; private set; } = 72.0;
         public bool IsLoading { get; private set; } = false;
 
+        // Aerospace Stepper Labels
+        private Label lblYearVal;
+        private Label lblMonthVal;
+        private Label lblDayVal;
+        private Label lblHourVal;
+        private Label lblMinuteVal;
+
         // Events
         public event Action<DateTime, double> OnAnalyzeRequested;
         public event Action OnCancelRequested;
@@ -50,31 +57,59 @@ namespace LunarNavigator.UI
             Clear();
             AddToClassList("mission-config-container");
 
-            // 1. Landing Date & Time Input (Editable, not restricted to 14-day stub period)
+            // 1. Aerospace Segmented Datetime Stepper
             var timeRow = new VisualElement();
             timeRow.AddToClassList("field-row");
-            timeRow.style.marginTop = 8;
+            timeRow.style.marginTop = 6;
 
-            var lblTime = new Label("Landing UTC (yyyy-MM-dd HH:mm)");
+            var lblTime = new Label("2  Landing date and time (UTC)");
             lblTime.AddToClassList("field-label");
             timeRow.Add(lblTime);
 
+            // Keep TxtLandingUtc synchronized as internal data binding
             TxtLandingUtc = new TextField();
-            TxtLandingUtc.AddToClassList("text-input");
+            TxtLandingUtc.style.display = DisplayStyle.None;
             TxtLandingUtc.value = SelectedLandingUtc.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-            TxtLandingUtc.RegisterValueChangedCallback(e => OnLandingTimeInputChanged(e.newValue));
             timeRow.Add(TxtLandingUtc);
 
-            // Quick Step buttons
-            var stepRow = new VisualElement();
-            stepRow.AddToClassList("row");
-            stepRow.style.marginTop = 4;
+            var stepperRow = new VisualElement();
+            stepperRow.AddToClassList("datetime-stepper-row");
 
-            StepMinus1d = new Button(() => StepTime(-86400)) { text = "-1d" }; StepMinus1d.AddToClassList("chip-btn"); stepRow.Add(StepMinus1d);
-            StepMinus6h = new Button(() => StepTime(-21600)) { text = "-6h" }; StepMinus6h.AddToClassList("chip-btn"); stepRow.Add(StepMinus6h);
-            StepPlus6h = new Button(() => StepTime(21600)) { text = "+6h" }; StepPlus6h.AddToClassList("chip-btn"); stepRow.Add(StepPlus6h);
-            StepPlus1d = new Button(() => StepTime(86400)) { text = "+1d" }; StepPlus1d.AddToClassList("chip-btn"); stepRow.Add(StepPlus1d);
-            timeRow.Add(stepRow);
+            lblYearVal = new Label(SelectedLandingUtc.Year.ToString("D4"));
+            lblMonthVal = new Label(SelectedLandingUtc.Month.ToString("D2"));
+            lblDayVal = new Label(SelectedLandingUtc.Day.ToString("D2"));
+            lblHourVal = new Label(SelectedLandingUtc.Hour.ToString("D2"));
+            lblMinuteVal = new Label(SelectedLandingUtc.Minute.ToString("D2"));
+
+            stepperRow.Add(CreateStepperUnit("year", lblYearVal, () => StepYear(1), () => StepYear(-1), 46f, "Step Year (±1y) · Use arrow buttons"));
+            var sepYM = new Label("-") { name = "sep-ym" };
+            sepYM.AddToClassList("stepper-separator");
+            stepperRow.Add(sepYM);
+
+            stepperRow.Add(CreateStepperUnit("month", lblMonthVal, () => StepMonth(1), () => StepMonth(-1), 30f, "Step Month (±1m) · Use arrow buttons"));
+            var sepMD = new Label("-") { name = "sep-md" };
+            sepMD.AddToClassList("stepper-separator");
+            stepperRow.Add(sepMD);
+
+            stepperRow.Add(CreateStepperUnit("day", lblDayVal, () => StepDay(1), () => StepDay(-1), 30f, "Step Day (±1d) · Use arrow buttons"));
+
+            var spaceGap = new VisualElement();
+            spaceGap.style.width = 6;
+            stepperRow.Add(spaceGap);
+
+            stepperRow.Add(CreateStepperUnit("hour", lblHourVal, () => StepHour(1), () => StepHour(-1), 30f, "Step Hour (±1h) · Use arrow buttons"));
+            var sepHM = new Label(":") { name = "sep-hm" };
+            sepHM.AddToClassList("stepper-separator");
+            stepperRow.Add(sepHM);
+
+            stepperRow.Add(CreateStepperUnit("minute", lblMinuteVal, () => StepMinute(10), () => StepMinute(-10), 30f, "Step Minute (±10min) · Use arrow buttons"));
+
+            var utcTag = new Label("UTC");
+            utcTag.AddToClassList("stepper-utc-tag");
+            utcTag.tooltip = "Coordinated Universal Time";
+            stepperRow.Add(utcTag);
+
+            timeRow.Add(stepperRow);
             Add(timeRow);
 
             // 2. Mission Duration (Editable in hours, preserving exact intended interval)
@@ -82,7 +117,7 @@ namespace LunarNavigator.UI
             durSection.AddToClassList("field-row");
             durSection.style.marginTop = 6;
 
-            var durLabel = new Label("Mission Duration (hours, 1 to 744)");
+            var durLabel = new Label("3  Mission duration (hours)");
             durLabel.AddToClassList("field-label");
             durSection.Add(durLabel);
 
@@ -102,7 +137,9 @@ namespace LunarNavigator.UI
             durUnit.style.color = new Color(0.6f, 0.7f, 0.8f);
             durInputRow.Add(durUnit);
 
-            durSection.Add(durInputRow);
+            var minus=new Button(()=>SetDuration(Math.Max(1,SelectedDurationHours-1))){text="-",tooltip="One hour shorter"};minus.AddToClassList("stepper");
+            var plus=new Button(()=>SetDuration(Math.Min(744,SelectedDurationHours+1))){text="+",tooltip="One hour longer"};plus.AddToClassList("stepper");
+            durInputRow.Insert(0,minus);durInputRow.Add(plus);durSection.Add(durInputRow);
 
             // Quick Duration Chips
             var chipRow = new VisualElement();
@@ -112,7 +149,7 @@ namespace LunarNavigator.UI
             Chip24 = new Button(() => SetDuration(24.0)) { text = "24 h" }; Chip24.AddToClassList("chip-btn"); chipRow.Add(Chip24);
             Chip72 = new Button(() => SetDuration(72.0)) { text = "72 h" }; Chip72.AddToClassList("chip-btn"); chipRow.Add(Chip72);
             Chip168 = new Button(() => SetDuration(168.0)) { text = "168 h" }; Chip168.AddToClassList("chip-btn"); chipRow.Add(Chip168);
-            durSection.Add(chipRow);
+            chipRow.style.display=DisplayStyle.None;
             Add(durSection);
 
             // 3. API Configuration Foldout (Configurable endpoint)
@@ -187,7 +224,7 @@ namespace LunarNavigator.UI
             errNotice.style.color = new Color(0.8f, 0.5f, 0.5f);
             errNotice.style.fontSize = 9;
             errNotice.style.marginTop = 4;
-            ErrorBanner.Add(errNotice);
+            errNotice.style.display=DisplayStyle.None;
             Add(ErrorBanner);
 
             // 6. Action Button
@@ -196,9 +233,88 @@ namespace LunarNavigator.UI
             BtnAnalyze.style.marginTop = 10;
             Add(BtnAnalyze);
 
+            Add(apiFoldout);
+            ConfigureInput(TxtLandingUtc);ConfigureInput(TxtDurationHours);ConfigureInput(TxtApiUrl);
+            LblLoadingStatus.style.whiteSpace=WhiteSpace.Normal;LblLoadingStatus.style.flexShrink=1;
             UpdateChipStyles();
         }
 
+        private VisualElement CreateStepperUnit(string name, Label valLabel, Action onUp, Action onDown, float width, string tooltip)
+        {
+            var unit = new VisualElement { name = "unit-" + name };
+            unit.AddToClassList("stepper-unit");
+            unit.style.width = width;
+            unit.tooltip = tooltip;
+
+            var upBtn = new Button(onUp) { text = "▲" };
+            upBtn.AddToClassList("stepper-arrow-btn");
+            upBtn.tooltip = "Increase (" + name + ")";
+            unit.Add(upBtn);
+
+            valLabel.name = "val-" + name;
+            valLabel.AddToClassList("stepper-digit-box");
+            unit.Add(valLabel);
+
+            var downBtn = new Button(onDown) { text = "▼" };
+            downBtn.AddToClassList("stepper-arrow-btn");
+            downBtn.tooltip = "Decrease (" + name + ")";
+            unit.Add(downBtn);
+
+            // The wheel belongs to the containing form; use arrows to edit values.
+            return unit;
+        }
+
+        public void StepYear(int delta)
+        {
+            try { SelectedLandingUtc = SelectedLandingUtc.AddYears(delta); } catch {}
+            UpdateStepperDisplay();
+        }
+
+        public void StepMonth(int delta)
+        {
+            try { SelectedLandingUtc = SelectedLandingUtc.AddMonths(delta); } catch {}
+            UpdateStepperDisplay();
+        }
+
+        public void StepDay(int delta)
+        {
+            try { SelectedLandingUtc = SelectedLandingUtc.AddDays(delta); } catch {}
+            UpdateStepperDisplay();
+        }
+
+        public void StepHour(int delta)
+        {
+            try { SelectedLandingUtc = SelectedLandingUtc.AddHours(delta); } catch {}
+            UpdateStepperDisplay();
+        }
+
+        public void StepMinute(int delta)
+        {
+            try { SelectedLandingUtc = SelectedLandingUtc.AddMinutes(delta); } catch {}
+            UpdateStepperDisplay();
+        }
+
+        private void UpdateStepperDisplay()
+        {
+            if (lblYearVal != null) lblYearVal.text = SelectedLandingUtc.Year.ToString("D4");
+            if (lblMonthVal != null) lblMonthVal.text = SelectedLandingUtc.Month.ToString("D2");
+            if (lblDayVal != null) lblDayVal.text = SelectedLandingUtc.Day.ToString("D2");
+            if (lblHourVal != null) lblHourVal.text = SelectedLandingUtc.Hour.ToString("D2");
+            if (lblMinuteVal != null) lblMinuteVal.text = SelectedLandingUtc.Minute.ToString("D2");
+
+            if (TxtLandingUtc != null)
+            {
+                TxtLandingUtc.value = SelectedLandingUtc.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+            }
+            ClearError();
+            OnConfigChanged?.Invoke(SelectedLandingUtc, SelectedDurationHours);
+        }
+
+        public static void ConfigureInput(TextField field)
+        {
+            // Caret and selection colors are set by Navigator.uss.
+            field.textSelection.selectAllOnFocus=false;field.textSelection.selectAllOnMouseUp=false;
+        }
         private void OnLandingTimeInputChanged(string text)
         {
             if (DateTime.TryParse(text, CultureInfo.InvariantCulture,
@@ -206,8 +322,7 @@ namespace LunarNavigator.UI
             {
                 TxtLandingUtc.style.borderBottomColor = new StyleColor(StyleKeyword.Null);
                 SelectedLandingUtc = dt;
-                ClearError();
-                OnConfigChanged?.Invoke(SelectedLandingUtc, SelectedDurationHours);
+                UpdateStepperDisplay();
             }
             else
             {
@@ -234,9 +349,7 @@ namespace LunarNavigator.UI
         public void StepTime(double deltaSeconds)
         {
             SelectedLandingUtc = SelectedLandingUtc.AddSeconds(deltaSeconds);
-            TxtLandingUtc.value = SelectedLandingUtc.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-            ClearError();
-            OnConfigChanged?.Invoke(SelectedLandingUtc, SelectedDurationHours);
+            UpdateStepperDisplay();
         }
 
         public void SetDuration(double hours)
@@ -251,8 +364,7 @@ namespace LunarNavigator.UI
         public void SetLandingUtc(DateTime utc)
         {
             SelectedLandingUtc = utc;
-            TxtLandingUtc.value = utc.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-            ClearError();
+            UpdateStepperDisplay();
         }
 
         private void UpdateChipStyles()
@@ -265,6 +377,10 @@ namespace LunarNavigator.UI
         private void HandleAnalyzeClicked()
         {
             if (IsLoading) return;
+            if(!DateTime.TryParse(TxtLandingUtc.value,CultureInfo.InvariantCulture,DateTimeStyles.AdjustToUniversal|DateTimeStyles.AssumeUniversal,out var utc) ||
+               !double.TryParse(TxtDurationHours.value,NumberStyles.Float,CultureInfo.InvariantCulture,out var hours) || double.IsNaN(hours)||double.IsInfinity(hours)||hours<1||hours>744)
+            {ShowError("Enter a UTC date/time (yyyy-MM-dd HH:mm) and 1-744 mission hours.");return;}
+            SelectedLandingUtc=utc;SelectedDurationHours=hours;
             ClearError();
             OnAnalyzeRequested?.Invoke(SelectedLandingUtc, SelectedDurationHours);
         }

@@ -117,7 +117,7 @@ namespace LunarNavigator.Editor
             camera.transform.position=LunarCoordinates.Direction(-32,12)*3100;camera.transform.LookAt(Vector3.zero,Vector3.up);
             var hd=cameraGo.AddComponent<HDAdditionalCameraData>();hd.clearColorMode=HDAdditionalCameraData.ClearColorMode.Color;hd.backgroundColorHDR=Color.black;hd.antialiasing=HDAdditionalCameraData.AntialiasingMode.TemporalAntialiasing;
             var lightGo=new GameObject("Sun · illustrative directional illumination");var light=lightGo.AddComponent<Light>();light.type=LightType.Directional;light.shadows=LightShadows.Soft;
-            var hdl=lightGo.AddComponent<HDAdditionalLightData>();hdl.SetIntensity(110000);lightGo.transform.rotation=Quaternion.LookRotation(-new IllustrativeDemoProvider().SunDirection(DemoSimulation.Epoch));
+            var hdl=lightGo.AddComponent<HDAdditionalLightData>();light.lightUnit=UnityEngine.Rendering.LightUnit.Lux;light.intensity=110000;lightGo.transform.rotation=Quaternion.LookRotation(-new IllustrativeDemoProvider().SunDirection(DemoSimulation.Epoch));
             var volumeGo=new GameObject("Vacuum exposure and filmic response");var volume=volumeGo.AddComponent<Volume>();volume.isGlobal=true;
             var profile=Asset(ScriptableObject.CreateInstance<VolumeProfile>(),"Vacuum Volume.asset");var exposure=profile.Add<Exposure>(true);exposure.mode.Override(ExposureMode.Fixed);exposure.fixedExposure.Override(12.7f);
             var tone=profile.Add<Tonemapping>(true);tone.mode.Override(TonemappingMode.ACES);

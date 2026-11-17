@@ -1,5 +1,0 @@
-Frame Checks: 4 passed, 0 failed
-PASS F2 Tycho direction unit vector
-PASS F2 Copernicus direction unit vector
-PASS F3 Compass: Facing north with up above, East is to the right
-PASS F4 Self-consistency: elevation recomputed matches within 0.05 deg (3.500 vs 3.500)

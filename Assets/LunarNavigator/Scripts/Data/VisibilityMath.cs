@@ -6,7 +6,7 @@ namespace LunarNavigator.Data
     public struct Metrics
     {
         public string start_utc;
-        public int duration_h;
+        public double duration_h;
         public double f_sun;
         public double f_earth;
         public double f_both;
@@ -111,7 +111,7 @@ namespace LunarNavigator.Data
             if (site?.ephemeris == null || site.visibility?.sun_visible == null || site.visibility?.earth_visible == null)
                 throw new ArgumentNullException(nameof(site));
 
-            if (startIdx < 0 || sampleCount <= 0 || startIdx + sampleCount > site.ephemeris.n)
+            if (startIdx < 0 || sampleCount <= 0 || startIdx + sampleCount > site.ephemeris.n - 1)
             {
                 throw new ArgumentOutOfRangeException(
                     $"Window [{startIdx}..{startIdx + sampleCount}) exceeds available samples ({site.ephemeris.n}).");
@@ -171,7 +171,7 @@ namespace LunarNavigator.Data
             return new Metrics
             {
                 start_utc = windowStart.ToString("yyyy-MM-ddTHH:mm:ssZ"),
-                duration_h = (int)Math.Round(durationHours),
+                duration_h = durationHours,
                 f_sun = (double)sunSum / sampleCount,
                 f_earth = (double)earthSum / sampleCount,
                 f_both = (double)bothSum / sampleCount,
@@ -180,13 +180,16 @@ namespace LunarNavigator.Data
             };
         }
 
-        public static Metrics ComputeForUtc(SiteAnalysis site, DateTime landingUtc, int durationHours)
+        public static Metrics ComputeForUtc(SiteAnalysis site, DateTime landingUtc, double durationHours)
         {
             if (site?.ephemeris == null) throw new ArgumentNullException(nameof(site));
 
             DateTime t0 = DateTime.Parse(site.ephemeris.t0_utc, null, System.Globalization.DateTimeStyles.AdjustToUniversal | System.Globalization.DateTimeStyles.AssumeUniversal);
             double deltaSec = (landingUtc.ToUniversalTime() - t0).TotalSeconds;
-            int startIdx = (int)Math.Round(deltaSec / site.ephemeris.step_s);
+            if (double.IsNaN(durationHours) || double.IsInfinity(durationHours) || durationHours <= 0 ||
+                deltaSec % site.ephemeris.step_s != 0 || (durationHours * 3600) % site.ephemeris.step_s != 0)
+                throw new ArgumentException("Mission must align exactly to complete source cells.");
+            int startIdx = (int)(deltaSec / site.ephemeris.step_s);
             int sampleCount = (int)Math.Round(durationHours * 3600.0 / site.ephemeris.step_s);
 
             return Compute(site, startIdx, sampleCount);

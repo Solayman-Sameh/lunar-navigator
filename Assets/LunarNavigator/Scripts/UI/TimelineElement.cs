@@ -67,13 +67,13 @@ namespace LunarNavigator.UI
             headerRow.style.marginBottom = 4;
 
             lblCoverageRange = new Label("COVERAGE: -- UTC → -- UTC (-- h)");
-            lblCoverageRange.style.fontSize = 10;
+            lblCoverageRange.style.fontSize = 11;
             lblCoverageRange.style.color = new Color(0.85f, 0.90f, 0.96f, 0.95f);
             lblCoverageRange.style.letterSpacing = 0.5f;
             headerRow.Add(lblCoverageRange);
 
             lblScopeType = new Label("SCOPE: Selected mission window");
-            lblScopeType.style.fontSize = 9;
+            lblScopeType.style.fontSize = 11;
             lblScopeType.style.unityFontStyleAndWeight = FontStyle.Bold;
             lblScopeType.style.color = new Color(0.44f, 0.89f, 0.69f, 0.95f);
             headerRow.Add(lblScopeType);
@@ -88,7 +88,7 @@ namespace LunarNavigator.UI
 
             // 3. Bottom Status / Hover Readout Bar
             lblHoverStatus = new Label(DefaultHoverPrompt);
-            lblHoverStatus.style.fontSize = 9;
+            lblHoverStatus.style.fontSize = 11;
             lblHoverStatus.style.color = new Color(0.55f, 0.63f, 0.72f);
             lblHoverStatus.style.marginTop = 4;
             lblHoverStatus.style.unityTextAlign = TextAnchor.MiddleCenter;
@@ -188,7 +188,7 @@ namespace LunarNavigator.UI
             windowBracket.style.position = Position.Absolute;
             windowBracket.style.top = 0;
             windowBracket.style.bottom = 0;
-            windowBracket.style.backgroundColor = colBracketBg;
+            windowBracket.style.backgroundColor = Color.clear;
             windowBracket.style.borderLeftWidth = 2f;
             windowBracket.style.borderRightWidth = 2f;
             windowBracket.style.borderLeftColor = colBracketBorder;
@@ -243,7 +243,7 @@ namespace LunarNavigator.UI
             // Row Label
             var lbl = new Label(rowLabel);
             lbl.style.width = LabelWidth;
-            lbl.style.fontSize = 10;
+            lbl.style.fontSize = 11;
             lbl.style.unityFontStyleAndWeight = FontStyle.Bold;
             lbl.style.color = new Color(0.68f, 0.76f, 0.86f);
             lbl.style.letterSpacing = 0.5f;
@@ -263,11 +263,14 @@ namespace LunarNavigator.UI
 
             if (mask != null && mask.Length > 0)
             {
-                var intervals = VisibilityMath.Windows(mask);
+                int cells = n - 1;
+                var cellMask = new int[cells];
+                Array.Copy(mask,cellMask,Math.Min(cells,mask.Length));
+                var intervals = VisibilityMath.Windows(cellMask);
                 foreach (var interval in intervals)
                 {
-                    float u0 = (float)interval.start / n;
-                    float u1 = (float)interval.endExcl / n;
+                    float u0 = (float)interval.start / (n-1);
+                    float u1 = (float)interval.endExcl / (n-1);
                     float uWidth = u1 - u0;
 
                     double segSec = (interval.endExcl - interval.start) * (double)step_s;
@@ -292,7 +295,7 @@ namespace LunarNavigator.UI
                     if (uWidth >= 0.045f)
                     {
                         var segLabel = new Label($"{segHours:F1} h");
-                        segLabel.style.fontSize = 9;
+                        segLabel.style.fontSize = 11;
                         segLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
                         segLabel.style.color = new Color(0.06f, 0.08f, 0.12f, 0.95f);
                         segLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
@@ -330,6 +333,13 @@ namespace LunarNavigator.UI
             if (totalWidth > LabelWidth + 10f)
             {
                 float trackW = totalWidth - LabelWidth;
+                if (windowBracket != null)
+                {
+                    float startU=Mathf.Clamp01((float)(landingTimeSec/totalSec));
+                    float endU=Mathf.Clamp01((float)((landingTimeSec+missionDurationSec)/totalSec));
+                    windowBracket.style.left=LabelWidth+startU*trackW;
+                    windowBracket.style.width=Mathf.Max(1,(endU-startU)*trackW);
+                }
                 float px = LabelWidth + playheadU * trackW;
                 playheadLine.style.left = px;
             }

@@ -11,6 +11,10 @@ namespace LunarNavigator
         public LunarWorld World;
         public NavigatorUI UI;
         public LunarSite SelectedSite { get; private set; }
+        public int SelectionRevision { get; private set; }
+        public SelectionLandmark Landmark { get; private set; }
+        public LunarSite CustomSite { get; private set; }
+        MeshCollider globePicker;
         public LunarSite[] Sites => sites;
 
         void Awake()
@@ -25,6 +29,8 @@ namespace LunarNavigator
             if (Clock) Clock.Initialize(this);
             if (World) World.Initialize(this);
             if (UI) UI.Initialize(this);
+            Landmark = gameObject.AddComponent<SelectionLandmark>();
+            Landmark.Initialize(this);
         }
 
         void Start()
@@ -77,10 +83,51 @@ namespace LunarNavigator
         {
             if (site == null) return;
             SelectedSite = site;
+            SelectionRevision++;
+            Data.AnalysisRepository.Instance.ActivateSite(site.id);
+            if (Clock) Clock.SetTime(0);
             if (Director) Director.Select(site);
             if (World) World.UpdateSkyline();
             if (UI) UI.OnSiteChanged(site);
         }
+
+        public bool PickLocation(Ray ray)
+        {
+            if (!World || !World.globe) return false;
+            if (!globePicker)
+            {
+                var mesh = World.globe.GetComponent<MeshFilter>();
+                if (!mesh || !mesh.sharedMesh) return false;
+                globePicker = World.globe.GetComponent<MeshCollider>();
+                if (!globePicker) globePicker = World.globe.AddComponent<MeshCollider>();
+                globePicker.sharedMesh = mesh.sharedMesh;
+            }
+            Physics.SyncTransforms();
+            if (!globePicker.Raycast(ray, out var hit, float.MaxValue)) return false;
+            // Transform back into the rendered globe's own geographic axes.
+            var geographic = LunarCoordinates.Geographic(World.globe.transform.InverseTransformPoint(hit.point));
+            SelectCustom(geographic.x, geographic.y);
+            return true;
+        }
+
+        public void SelectCustom(double latitude, double longitude)
+        {
+            if (double.IsNaN(latitude) || double.IsInfinity(latitude) || latitude < -90 || latitude > 90 ||
+                double.IsNaN(longitude) || double.IsInfinity(longitude) || longitude < -180 || longitude > 180)
+                throw new System.ArgumentOutOfRangeException("Invalid lunar coordinates");
+            if (CustomSite) Destroy(CustomSite);
+            CustomSite = ScriptableObject.CreateInstance<LunarSite>();
+            CustomSite.IsCustom = true;
+            CustomSite.CustomLatitude = latitude; CustomSite.CustomLongitude = longitude;
+            CustomSite.latitude = (float)latitude; CustomSite.longitude = (float)longitude;
+            CustomSite.id = "custom:" + latitude.ToString("R", System.Globalization.CultureInfo.InvariantCulture) + ":" + longitude.ToString("R", System.Globalization.CultureInfo.InvariantCulture);
+            CustomSite.displayName = "Custom Location (unverified)";
+            CustomSite.provenance = "User-picked coordinate; no terrain or touchdown verification.";
+            SelectSite(CustomSite);
+            UI?.SetMode(AppMode.Inspect);
+        }
+
+        void OnDestroy() { if (CustomSite) Destroy(CustomSite); }
 
         public void Back()
         {

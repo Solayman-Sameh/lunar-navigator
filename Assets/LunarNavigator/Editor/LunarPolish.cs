@@ -14,7 +14,7 @@ namespace LunarNavigator.Editor
             AssetDatabase.ImportAsset(root+"NASA_LROC_4K.tif",ImportAssetOptions.ForceSynchronousImport);
             var importer=AssetImporter.GetAtPath(root+"NASA_LROC_4K.tif") as TextureImporter;
             if(importer){importer.maxTextureSize=4096;importer.anisoLevel=8;importer.textureCompression=TextureImporterCompression.CompressedHQ;importer.sRGBTexture=true;importer.SaveAndReimport();}
-            var app=Object.FindFirstObjectByType<LunarApplication>();
+            var app=Object.FindAnyObjectByType<LunarApplication>();
             var heightPath=root+"NASA_LOLA_16.tif";
             if(System.IO.File.Exists(heightPath))
             {
@@ -56,7 +56,7 @@ namespace LunarNavigator.Editor
             app.Director.view.transform.LookAt(Vector3.down*90,Vector3.up);
             var star=app.World.stars.GetComponent<MeshRenderer>().sharedMaterial;
             star.SetColor("_EmissiveColor",new Color(.25f,.28f,.32f));star.SetFloat("_EmissiveExposureWeight",0);star.SetFloat("_DoubleSidedEnable",1);star.SetFloat("_CullMode",0);star.SetFloat("_OpaqueCullMode",0);EditorUtility.SetDirty(star);
-            var volume=Object.FindFirstObjectByType<Volume>();
+            var volume=Object.FindAnyObjectByType<Volume>();
             var profile=volume.sharedProfile;
             if(!profile.TryGet<Exposure>(out var exposure)){exposure=profile.Add<Exposure>(true);AssetDatabase.AddObjectToAsset(exposure,profile);}
             exposure.mode.Override(ExposureMode.Fixed);exposure.fixedExposure.Override(12.7f);EditorUtility.SetDirty(exposure);

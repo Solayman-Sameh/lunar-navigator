@@ -52,7 +52,25 @@ def coordinate_mismatch(science, asset, tolerance_deg=.05):
     return abs(science[0]-asset[0]) > tolerance_deg or abs(normalize_longitude(science[1]-asset[1])) > tolerance_deg
 
 
-def supported_catalog():
+def get_sites_json_path():
+    import os, sys
     from pathlib import Path
+    env_override = os.environ.get("LUNAR_SITES_JSON")
+    if env_override:
+        p = Path(env_override).resolve()
+        if p.is_file():
+            return p
+    backend_root = Path(__file__).resolve().parents[1]
+    candidate = backend_root / 'data' / 'sites.json'
+    if candidate.is_file():
+        return candidate
+    exe_dir = Path(sys.executable).resolve().parent
+    for sub in [exe_dir / 'data' / 'sites.json', exe_dir / 'backend' / 'data' / 'sites.json']:
+        if sub.is_file():
+            return sub
+    raise FileNotFoundError(f"Authoritative sites.json could not be located at {candidate} or fallbacks.")
+
+
+def supported_catalog():
     import json
-    return load_catalog(json.loads((Path(__file__).resolve().parents[1]/'data/sites.json').read_text(encoding='utf-8')))
+    return load_catalog(json.loads(get_sites_json_path().read_text(encoding='utf-8')))

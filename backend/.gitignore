@@ -5,9 +5,10 @@ __pycache__/
 .pytest_cache/
 *.egg-info/
 dist/
-data/cache/
-data/api/cache/
-data/dem/
 tests/.work/
 pytest-cache-files-*/
-# Keep task evidence/manifests under data/runs/ available for source control.
+data/api/
+data/cache/
+data/runs/
+data/dem/
+data/horizons_inbox/

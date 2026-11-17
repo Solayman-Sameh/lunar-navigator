@@ -1,94 +1,130 @@
-# LunarNavigator: Interactive Lunar South-Pole Landing Site Evaluation
+# LunarNavigator — project proposal
 
-*Project proposal for the NASA Space Apps Challenge 2026*
+**NASA Space Apps Challenge project · v1.1.0 revision · 17 November 2026**
 
-## 1. Executive Summary
+## Purpose
 
-LunarNavigator connects interactive lunar exploration with quantitative mission analysis. Users examine south-pole reference locations in a three-dimensional Moon environment, choose a landing date and mission duration, and evaluate sunlight and direct-to-Earth visibility. A dynamic Opportunity Finder searches combinations of location and arrival time against user-defined requirements.
+LunarNavigator helps students and mission-planning audiences explore how location,
+arrival time and mission duration affect sunlight and direct-to-Earth visibility
+near the lunar south pole. It joins an interactive Unity Moon environment with a
+Python scientific service using NASA/JPL Horizons ephemerides.
 
-The application combines a Unity interface with a Python scientific service that retrieves genuine NASA/JPL Horizons ephemerides. Its validated release calculates geometric visibility, simultaneous Sun–Earth visibility, and uninterrupted outages using an explicit spherical lunar horizon. Results carry source provenance and a visible `GEOMETRIC_ONLY` classification. The project serves education and preliminary mission comparison while keeping its scientific scope clear.
+The product is an educational and preliminary comparison tool. Its analytical
+scope is **GEOMETRIC_ONLY**, and its visible local terrain is illustrative.
+It does not certify safe landing locations or operational mission feasibility.
 
-## 2. Problem Statement
+## Problem
 
-At the lunar south pole, low solar elevations make mission conditions sensitive to location and time. Sunlight availability influences energy planning, while Earth visibility affects opportunities for direct communication. A favorable condition at arrival may change during a mission, making duration as important as the landing date.
+The south-pole Sun stays close to the horizon. A favorable arrival does not imply
+favorable conditions throughout a surface stay. Sunlight and Earth visibility
+also describe different constraints, and short continuous interruptions can matter
+even when the overall visibility percentage appears high.
 
-These relationships are difficult to communicate through static maps or isolated astronomical tables. Users need to compare complete mission windows, recognize continuous interruptions, and understand how alternative arrival times change the result. They also need a clear distinction between astronomical visibility, actual terrain obstruction, and engineering feasibility.
+Static maps make these relationships difficult to explain. Users need a way to
+inspect complete mission windows, compare alternative arrivals and understand the
+assumptions behind each result.
 
-## 3. Proposed Solution
+## Implemented solution
 
-LunarNavigator places these questions inside an interactive lunar environment. Users move between global exploration and a local surface perspective, select a reference center, and configure a mission through the Dynamic Site Inspector. The interface presents visibility fractions, maximum outages, and Sun/Earth directions alongside an interactive timeline.
+- **Site Inspector:** select a source-cited regional reference center or click the
+  Moon for a custom coordinate; configure a UTC landing time and surface stay.
+- **Mission Assessment:** inspect sunlight, Earth and simultaneous visibility,
+  maximum darkness and communication interruption, with current-result provenance.
+  Changing the selected coordinate or mission invalidates stale assessments.
+- **Mission timeline:** inspect separate Sun, Earth and combined visibility tracks,
+  scrub time, and examine sampled intervals.
+- **Opportunity Finder:** search sampled arrival dates for up to three reference
+  sites under minimum visibility and maximum outage requirements. Rank qualifying
+  scenarios by Best Overall or Earliest Qualifying; empty searches explain failure.
+- **Spatial exploration:** global, approach, local-orbit and surface-observer views,
+  with keyboard movement and mouse controls that respect interface interactions.
 
-The Landing Opportunity Finder extends this workflow from inspection to comparison. Users edit an arrival search window, mission duration, candidate sites, visibility requirements, and outage limits. Ranked recommendations identify qualifying scenarios; selecting one synchronizes the site and mission configuration for detailed inspection. Empty searches report why the requirements were unmet and show the closest misses without presenting them as qualifying results.
+The v1.1.0 application adds corrected coordinate picking and movement handling,
+a refined Mission Assessment interface, consistent branding, and a Windows setup
+that installs the application and its private scientific runtime together.
 
-## 4. How the System Works
+## Architecture and delivery
 
-Unity sends the selected location, UTC landing time, and mission duration to the FastAPI service. The backend validates the request and obtains matching Sun and Earth observer ephemerides from Horizons, either through a new HTTPS request or an exact, validated cache entry. Named locations use the service catalog; the API also supports explicit custom coordinates.
+The frontend uses **Unity 6000.6.3f1**, **HDRP 17.6.0**, C#, UI Toolkit and Unity
+Input System. FastAPI/Pydantic validate requests; Uvicorn serves the Python backend.
+The Windows package includes **CPython 3.11.9 x64** and pinned runtime dependencies.
+A .NET Framework 4.8 launcher starts and identifies its backend, waits for health
+readiness, launches Unity, and cleans up its child processes on exit.
 
-Python checks source metadata, timestamps, numerical ranges, and complete coverage before calculating visibility. The JSON response contains aligned directions, visibility states, mission metrics, intervals, and provenance. Unity adapts these results for visualization. Invalid or unavailable data produces an explicit error rather than a substitute astronomical result.
+Distribution uses **LunarNavigator_Setup.exe** as a GitHub Release asset. Users
+choose their installation directory and do not install Python or Unity separately.
+Uncached ephemeris acquisition needs internet. Exact validated cached requests can
+be replayed offline. Logs, cache and results use per-user application storage.
 
-## 5. Scientific and Technical Methodology
+## Scientific method
 
-Horizons supplies apparent azimuth and elevation for the Sun and Earth, target identifiers 10 and 399, from a custom observer on the Moon. Requests use UTC, east-positive longitude, and airless apparent angles. The catalog contains NASA Lunar Surface Data Book reference centers for Shackleton Rim, Connecting Ridge, and Malapert Massif. These coordinates identify regional reference points, not certified touchdown locations.
+Horizons supplies apparent, airless azimuth/elevation for Sun target **10** and Earth
+target **399**, from a lunar observer (`coord@301`). The parser validates identity,
+coordinates, timestamps, grid completeness and numerical bounds. Source metadata
+and SHA-256 hashes accompany retained results.
 
-The horizon model uses lunar radius R = 1,737,400 meters and observer height h above that nominal sphere:
+For nominal lunar radius R = 1,737,400 m and observer height h, the modeled horizon
+is H = -acos(R / (R + h)), converted to degrees. Visibility requires target-center
+elevation strictly above H. Defaults use a 2 m observer and ten-minute sampling.
+States are left-held over half-open time cells; transition accuracy is cadence-limited.
 
-\[
-H=-\arccos\left(\frac{R}{R+h}\right).
-\]
+The Finder applies explicit constraints before ranking. Its score is
+`0.4*f_sun + 0.3*f_earth + 0.2*f_both + 0.1*(1-min(1,dark_max_h/duration_h))`.
+These weights are application preferences, not NASA safety criteria.
 
-Converting H to degrees gives approximately −0.086936572° at the default two-meter height. A target is visible when its center elevation is strictly greater than H. Simultaneous visibility requires both targets to pass.
+The three catalog sites are **Shackleton Rim**, **Connecting Ridge** and
+**Malapert Massif**, based on NASA reference-center coordinates. These centers are
+not certified touchdown points. Inspector custom coordinates remain unverified.
 
-Visibility fractions are visible mission cells divided by total mission cells. Longest darkness and Earth interruption are the longest consecutive hidden-cell durations. States are held over half-open intervals, so n boundary samples represent n−1 complete cells. Default sampling is ten minutes; transition timing remains cadence-limited.
+## Verification
 
-Finder rejects scenarios that fail minimum Sun/Earth fractions or maximum darkness/Earth-outage durations. Passing scenarios receive
+The v1.1.0 preparation run passed **158 backend/deployment tests**, **13 launcher
+regression checks**, and **two additional bundled-runtime lifecycle checks**.
+The icon refresh player build completed with zero errors and zero warnings.
+A portable, retained NASA diagnostic pair is included with its regression tests;
+synthetic fixtures are labeled separately.
 
-\[
-Q=0.4f_{sun}+0.3f_{earth}+0.2f_{both}
-+0.1\left(1-\min\left(1,\frac{d_{max}}{D}\right)\right),
-\]
+The current interface and About panel were visually inspected in Play Mode.
+An isolated file installation, shortcut creation and generated-uninstaller icon
+check succeeded; uninstall removed the test installation. Registry writes and
+capture of newly launched installer windows were restricted in the build environment.
+These checks are not a clean-machine or live-network certification. See
+[release validation](RELEASE_VALIDATION.md) for the exact evidence and limits.
 
-where D is mission duration and d_max is longest darkness, both in hours. Best Overall ranks by score; Earliest Qualifying restricts selection to the earliest qualifying sampled arrival. Ties use arrival time and site ID. At most three distinct site-and-arrival pairs are returned. The weights express application preferences, not NASA safety standards.
+Historical aggregate test counts are not presented as newly executed v1.1.0 results.
+Public release publication is a separate step from local build verification.
 
-## 6. Technology Stack
+## Impact and future work
 
-The frontend uses Unity 6.6 (6000.6.3f1), HDRP 17.6.0, C#, UI Toolkit, and Unity Input System. Four camera modes provide global orbit, cinematic approach, local orbit, and surface observation. Timeline controls support playback, scrubbing, UTC readouts, and separate sunlight, Earth-visible, and simultaneous-visibility lanes.
+The interface makes timing trade-offs accessible to learners and helps technical
+teams compare scenarios before detailed terrain and engineering analysis. Future
+work could add independently validated LOLA terrain horizons, a broader catalog,
+solar-array and energy models, RF link budgets and hosted service options. Each
+extension requires its own validation; none is part of the current scope.
 
-The backend uses CPython 3.11.15, FastAPI, Pydantic, and Uvicorn. Reusable Python functions perform the scientific calculations; standard-library HTTPS, JSON, CSV, and hashing support acquisition and retention. Matplotlib produces diagnostic plots, and Pytest supports verification. Installed geospatial libraries provide a foundation for future terrain processing but are outside the current analytical model.
+## Limitations
 
-## 7. Innovation and Distinctive Features
+No terrain obstruction, landing hazards, slopes, power budgets, antenna/receiver
+model, relay service or flight certification is calculated. Sun/Earth center
+visibility does not guarantee useful power or reliable communications. Custom
+Inspector points and illustrative local geometry must not be interpreted as
+terrain-validated landing assessments.
 
-LunarNavigator makes the consequences of mission timing visible. Changing the date or duration changes the scientific request, while the three-dimensional environment gives users spatial context for the returned directions and timelines.
+Service coverage runs from 2018-01-01 through 2030-01-01 UTC, with the entire
+mission inside coverage. Maximum Inspector duration is 744 hours. Finder search
+span plus mission duration shares that cap. Cadence is 1–60 minutes; requests are
+limited to 10,001 source instants and 1,000 Finder scenarios. Exact cell alignment
+and combined limits can further restrict valid requests.
 
-Finder evaluates overlapping missions locally after acquiring one covering Sun/Earth series per site, avoiding a separate NASA query for every arrival. Users can compare scenarios under explicit constraints and two ranking policies. Retained source responses, request metadata, checksums, and visible limitations make the calculation traceable. The combination supports explanation as well as numerical comparison: users can inspect what a recommendation means and what assumptions produced it.
+## Sources and further documentation
 
-## 8. Verification and Results
+- [NASA/JPL Horizons API](https://ssd-api.jpl.nasa.gov/doc/horizons.html)
+- [Horizons user manual](https://ssd.jpl.nasa.gov/horizons/manual.html)
+- [NASA Moon to Mars Lunar Surface Data Book](https://ntrs.nasa.gov/citations/20250002845)
+- [NASA/GSFC CGI Moon Kit](https://svs.gsfc.nasa.gov/4720/)
+- [Scientific implementation reference](SCIENCE_BACKEND_REFERENCE.md)
+- [HTTP contract](../backend/docs/API_CONTRACT.md)
+- [Asset attribution](ASSET_ATTRIBUTION.md)
 
-The backend release baseline records **156 passing Python tests**, covering geometry, parsing, timestamp integrity, interval boundaries, cache identity, API validation, and ranking. Retained real-source proofs separately establish genuine NASA operation across December 2026 and February 2027: 24-hour and 120-hour requests produced 145 and 721 ten-minute boundary samples respectively. The saved [dynamic API proof](../backend/data/runs/api-live-20261115T185938Z-4b822681/comparison.json) distinguishes their source windows.
-
-The [real Finder verification](../backend/data/runs/release-20261115/T032-evidence.json) evaluated 24 scenarios across three sites. Six qualified and three were returned; the selected Malapert scenarios had full sampled Sun and Earth visibility under the geometric model. These results apply to that search, not all dates.
-
-The [release acceptance report](RELEASE_ACCEPTANCE_REPORT.md) records **5,311 passing Unity automated checks**, including repeated Play Mode checks and live HTTP integration. These are distinct from the Python tests and from executable acceptance. Existing standalone-player logs document launch in illustrative-demo mode; they do not establish final online-release acceptance or portable packaging. The report identifies readiness for a final Windows rebuild; public deployment is not claimed.
-
-## 9. Benefits, Intended Impact, and Applications
-
-For education, LunarNavigator makes astronomical time series easier to explore through spatial interaction and mission timelines. Students can investigate why continuous illumination and Earth visibility differ, and how mission length changes the interpretation of a favorable arrival.
-
-For researchers and technically informed users, it provides a preliminary comparison workflow with explicit assumptions and reproducible source evidence. The intended benefit is faster understanding of timing trade-offs before more detailed terrain and engineering analysis. A shared visual interface also helps teams explain these trade-offs to audiences who do not work directly with ephemeris tables.
-
-## 10. Scope and Scientific Limitations
-
-The release is `GEOMETRIC_ONLY`. Its spherical horizon excludes local mountains and crater walls. No validated LOLA terrain-obstruction model is implemented. NASA imagery supports global rendering; illustrative local terrain is not certified landing-site geometry and does not determine scientific visibility. Sun-center visibility is not a solar-power calculation, and Earth-center visibility is not a communications link budget. No landing-safety certification is implied.
-
-Finder supports three reference centers; custom Inspector coordinates remain explicitly unverified. Supported landing years are 2018–2029, with complete coverage ending no later than January 1, 2030 UTC. Inspector missions are capped at 744 hours; Finder's search span plus mission duration shares that cap. Cadence is 1–60 minutes, with at most 10,001 source instants and 1,000 Finder scenarios. Whole-cell alignment and combined limits can further restrict requests. Operation requires accessible Horizons or matching authentic cached data.
-
-## 11. Future Development
-
-Future work includes validated terrain-aware skylines from LOLA elevation products, an expanded sourced catalog, and additional exploration tools. Secure public backend hosting would extend access beyond local operation. More complete mission models could incorporate solar-array behavior, communications engineering, and environmental factors. Each extension requires its own scientific validation; none is part of the current release's demonstrated capability.
-
-## 12. Official NASA Data and References
-
-The analytical sources are [NASA/JPL Horizons documentation](https://ssd-api.jpl.nasa.gov/doc/horizons.html), its [observer manual](https://ssd.jpl.nasa.gov/horizons/manual.html), and the [NASA Moon to Mars Lunar Surface Data Book](https://ntrs.nasa.gov/citations/20250002845), Table A2.1-1, for reference-center coordinates.
-
-Global rendering maps are credited to NASA/GSFC Scientific Visualization Studio/LRO/LROC through the [CGI Moon Kit](https://svs.gsfc.nasa.gov/4720/). Their visual use does not validate terrain-aware analysis. Asset provenance is retained in [Documentation/Sources/ATTRIBUTION.md](../Documentation/Sources/ATTRIBUTION.md).
-
-For full equations, assumptions, operating limits, source paths, and retained validation evidence, see [docs/SCIENCE_BACKEND_REFERENCE.md](SCIENCE_BACKEND_REFERENCE.md).
+The Markdown proposal is the maintained public revision. Older local PDF/Word
+exports are excluded from the release source tree to avoid conflicting versions.

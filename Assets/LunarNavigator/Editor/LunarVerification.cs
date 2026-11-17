@@ -22,15 +22,15 @@ namespace LunarNavigator.Editor
             Check(provider.SunDirection(now)==provider.SunDirection(now),"Deterministic Sun");
             Check(provider.EarthDirection(now)!=provider.EarthDirection(now.AddDays(2)),"Earth changes with UTC");
             Check(Vector3.Distance(provider.SunDirection(now),provider.SunDirection(now.AddDays(3)))>.1f,"Sun changes with UTC");
-            var app=UnityEngine.Object.FindFirstObjectByType<LunarApplication>();Check(app!=null,"Application in scene");
+            var app=UnityEngine.Object.FindAnyObjectByType<LunarApplication>();Check(app!=null,"Application in scene");
             if(app)
             {
                 Check(app.Director&&app.Clock&&app.UI&&app.World&&app.config,"Wired core references");
                 Check(app.sites.Length>=3,"At least three sites");var ids=new HashSet<string>();foreach(var site in app.sites)Check(site&&ids.Add(site.id)&&site.latitude< -80&&(site.provenance.Contains("NASA")||site.provenance.Contains("Fictional")||!string.IsNullOrEmpty(site.provenance)),"Unique labeled south-polar site "+site.name);
-                foreach(var renderer in UnityEngine.Object.FindObjectsByType<MeshRenderer>(FindObjectsInactive.Include,FindObjectsSortMode.None))
+                foreach(var renderer in UnityEngine.Object.FindObjectsByType<MeshRenderer>(FindObjectsInactive.Include))
                     Check(renderer.sharedMaterial&&renderer.sharedMaterial.shader&&renderer.sharedMaterial.shader.isSupported,"Supported material "+renderer.name);
                 Check(app.World.terrain.GetComponent<MeshCollider>()!=null,"Terrain collider present");
-                var volume=UnityEngine.Object.FindFirstObjectByType<UnityEngine.Rendering.Volume>();
+                var volume=UnityEngine.Object.FindAnyObjectByType<UnityEngine.Rendering.Volume>();
                 Check(volume&&volume.sharedProfile&&volume.sharedProfile.TryGet<UnityEngine.Rendering.HighDefinition.Exposure>(out var exposure),"Persistent HDRP exposure override");
                 Check(volume&&volume.sharedProfile&&volume.sharedProfile.TryGet<UnityEngine.Rendering.HighDefinition.Tonemapping>(out var tone),"Persistent filmic tone mapping");
                 Check(app.World.sun.GetComponent<MeshRenderer>().shadowCastingMode==UnityEngine.Rendering.ShadowCastingMode.Off,"Solar display does not cast artificial shadow");
@@ -39,7 +39,7 @@ namespace LunarNavigator.Editor
         }
         public static string Runtime()
         {
-            evidence=new List<string>();var app=UnityEngine.Object.FindFirstObjectByType<LunarApplication>();
+            evidence=new List<string>();var app=UnityEngine.Object.FindAnyObjectByType<LunarApplication>();
             Check(Application.isPlaying&&app,"Play Mode application");if(!app)return Save("runtime");
             var clock=app.Clock;clock.paused=true;clock.SetTime(100);clock.Advance(3);Check(clock.seconds==100,"Paused clock stable");
             clock.paused=false;clock.speed=60;clock.Advance(2);Check(clock.seconds==220,"Clock speed advances");clock.SetTime(-1);Check(clock.seconds==0,"Clock lower bound");clock.SetTime(double.MaxValue);Check(clock.seconds==clock.TotalDuration,"Clock upper bound");clock.SetTime(0);clock.paused=true;clock.speed=3600;

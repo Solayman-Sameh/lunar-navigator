@@ -15,9 +15,11 @@ namespace LunarNavigator
         public GameObject globe;
         public SkylineRing skylineRing;
         public bool markersVisible = true, aidsVisible = true;
+        public bool terrainVisibilityAid = false;
         public string Preset { get; private set; } = "Balanced";
         LunarApplication app;
         Transform boulderPatch;
+        Light visibilityAidLight;
 
         public void Initialize(LunarApplication value)
         {
@@ -33,8 +35,7 @@ namespace LunarNavigator
                     elGo = new GameObject("Earthlight · indirect lunar illumination");
                     elGo.transform.SetParent(transform, false);
                 }
-                earthlight = elGo.GetComponent<Light>();
-                if (!earthlight)
+                if (!elGo.TryGetComponent<Light>(out earthlight))
                 {
                     earthlight = elGo.AddComponent<Light>();
                 }
@@ -42,16 +43,54 @@ namespace LunarNavigator
                 earthlight.color = new Color(0.48f, 0.68f, 0.95f, 1f);
                 earthlight.shadows = LightShadows.None;
                 earthlight.intensity = 450f;
-                var hdLight = elGo.GetComponent<HDAdditionalLightData>();
-                if (!hdLight)
+                if (!elGo.TryGetComponent<HDAdditionalLightData>(out var hdLight))
                 {
                     hdLight = elGo.AddComponent<HDAdditionalLightData>();
                 }
             }
 
+            // Optional visualization aid for inspecting crater floors in local modes
+            if (!visibilityAidLight)
+            {
+                var valGo = GameObject.Find("Terrain Visibility Aid · subtle exploration fill");
+                if (!valGo)
+                {
+                    valGo = new GameObject("Terrain Visibility Aid · subtle exploration fill");
+                    valGo.transform.SetParent(transform, false);
+                }
+                if (!valGo.TryGetComponent<Light>(out var l))
+                {
+                    l = valGo.AddComponent<Light>();
+                }
+                visibilityAidLight = l;
+                visibilityAidLight.type = LightType.Directional;
+                visibilityAidLight.color = new Color(0.72f, 0.82f, 0.95f, 1f);
+                visibilityAidLight.shadows = LightShadows.None;
+                visibilityAidLight.intensity = 2800f;
+                if (!valGo.TryGetComponent<HDAdditionalLightData>(out var hdValLight))
+                {
+                    hdValLight = valGo.AddComponent<HDAdditionalLightData>();
+                }
+                visibilityAidLight.enabled = false;
+            }
+
             // These distant display objects visualize directions, not occulting geometry.
-            if (earth && earth.TryGetComponent<MeshRenderer>(out var earthRend))
-                earthRend.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            if (earth)
+            {
+                earth.localScale = Vector3.one * 320f;
+                if (earth.TryGetComponent<MeshRenderer>(out var earthRend))
+                {
+                    earthRend.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                    var mat = earthRend.material;
+                    if (mat)
+                    {
+                        mat.EnableKeyword("_EMISSION");
+                        mat.SetColor("_EmissiveColor", new Color(0.28f, 0.58f, 0.98f, 1f));
+                        mat.SetFloat("_EmissiveIntensity", 1200f);
+                        mat.SetFloat("_AlbedoAffectEmissive", 1f);
+                    }
+                }
+            }
             if (sun && sun.TryGetComponent<MeshRenderer>(out var sunRend))
                 sunRend.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 
@@ -115,9 +154,35 @@ namespace LunarNavigator
             }
         }
 
+        public void EnsureVisibilityAidLight()
+        {
+            if (visibilityAidLight) return;
+            var valGo = GameObject.Find("Terrain Visibility Aid · subtle exploration fill");
+            if (!valGo)
+            {
+                valGo = new GameObject("Terrain Visibility Aid · subtle exploration fill");
+                valGo.transform.SetParent(transform, false);
+            }
+            if (!valGo.TryGetComponent<Light>(out var l))
+            {
+                l = valGo.AddComponent<Light>();
+            }
+            visibilityAidLight = l;
+            visibilityAidLight.type = LightType.Directional;
+            visibilityAidLight.color = new Color(0.72f, 0.82f, 0.95f, 1f);
+            visibilityAidLight.shadows = LightShadows.None;
+            visibilityAidLight.intensity = 2800f;
+            if (!valGo.TryGetComponent<HDAdditionalLightData>(out var hdValLight))
+            {
+                hdValLight = valGo.AddComponent<HDAdditionalLightData>();
+            }
+            visibilityAidLight.enabled = false;
+        }
+
         void Update()
         {
             if (!app) return;
+            EnsureVisibilityAidLight();
             var camera = app.Director.view;
             var sd = app.Clock.Provider.SunDirection(app.Clock.Utc);
             sunlight.transform.rotation = Quaternion.LookRotation(-sd, Vector3.up);
@@ -130,6 +195,16 @@ namespace LunarNavigator
             {
                 earthlight.transform.rotation = Quaternion.LookRotation(-ed, Vector3.up);
                 earthlight.enabled = app.Director.Mode != CameraMode.Global;
+            }
+
+            if (visibilityAidLight)
+            {
+                bool active = terrainVisibilityAid && (app.Director.Mode == CameraMode.LocalOrbit || app.Director.Mode == CameraMode.Surface);
+                visibilityAidLight.enabled = active;
+                if (active)
+                {
+                    visibilityAidLight.transform.rotation = camera.transform.rotation;
+                }
             }
 
             bool nearPatch = Vector3.Distance(camera.transform.position, terrain.Anchor) < 330;

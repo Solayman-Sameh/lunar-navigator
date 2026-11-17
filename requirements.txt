@@ -1,8 +1,2 @@
-requests==2.34.2
-numpy==2.4.6
-pandas==3.1.1
-matplotlib==3.11.2
-pytest==9.2.0
-scipy==1.17.1
-rasterio==1.4.4
-pyproj==3.7.2
+# Complete pinned development environment; runtime-only pins live in backend/.
+-r backend/requirements.txt

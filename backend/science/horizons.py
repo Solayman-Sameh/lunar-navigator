@@ -133,10 +133,12 @@ def parse_response(raw, query):
     if len(headings) != 1:
         raise SourceError("missing/ambiguous CSV heading")
     header = headings[0]
-    names = ['Date__(UT)__HR:MN:SS', 'Azimuth_(a-app)', 'Elevation_(a-app)']
-    if any(header.count(name) != 1 for name in names):
+    date_col = next((c for c in header if c in ('Date__(UT)__HR:MN:SS', 'Date__(UT)__HR:MN')), None)
+    if not date_col or header.count(date_col) != 1 or header.count('Azimuth_(a-app)') != 1 or header.count('Elevation_(a-app)') != 1:
         raise SourceError(f"unsupported or ambiguous airless/UTC heading: {header}")
-    ti, ai, ei = (header.index(name) for name in names)
+    ti = header.index(date_col)
+    ai = header.index('Azimuth_(a-app)')
+    ei = header.index('Elevation_(a-app)')
     rows = []
     for cells in csv.reader(block.strip().splitlines()):
         if not cells or not any(c.strip() for c in cells):

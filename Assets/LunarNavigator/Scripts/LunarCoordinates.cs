@@ -17,9 +17,10 @@ namespace LunarNavigator
         }
         public static Quaternion Frame(Vector3 up)
         {
-            var east = Vector3.Cross(Vector3.up,up).normalized;
-            if(east.sqrMagnitude < .1f) east = Vector3.right;
-            return Quaternion.LookRotation(Vector3.Cross(east,up).normalized, up);
+            up = up.normalized;
+            var north = Vector3.ProjectOnPlane(Vector3.up, up).normalized;
+            if (north.sqrMagnitude < .1f) north = up.y > 0 ? Vector3.left : Vector3.right;
+            return Quaternion.LookRotation(north, up);
         }
     }
     public interface ILunarEphemeris

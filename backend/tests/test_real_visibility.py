@@ -11,7 +11,7 @@ pytestmark=pytest.mark.real_data
 
 @pytest.mark.parametrize('hours',[24,72])
 def test_real_geometric_mission(hours):
-    source=Path(__file__).resolve().parents[1]/'data/runs/local-horizons-20261115T182625Z-4a08a2a5/raw'
+    source=Path(__file__).resolve().parent/'fixtures/horizons/real-diagnostic/raw'
     if not (source/'sun.json').is_file(): pytest.skip('real source absent; NOT a scientific PASS')
     tracks={name:parse_response((source/(name+'.json')).read_bytes(),q) for name,q in diagnostic_queries().items()}
     paired=align_tracks(tracks['sun'],tracks['earth'])
