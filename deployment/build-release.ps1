@@ -47,7 +47,7 @@ $UnityBuildSource = Join-Path $RepoRoot "Builds\Win64"
 $SourceManifest = Join-Path $UnityBuildSource "source-hashes.txt"
 if (-not (Test-Path $SourceManifest)) { throw "No Unity source manifest. Run Lunar Navigator/Build Windows 64-bit in the open Editor first." }
 if ((Get-Content (Join-Path $UnityBuildSource "release-version.txt") -Raw).Trim() -ne "1.1.0") { throw "Unity release version is not 1.1.0" }
-$Entries = @(Get-Content $SourceManifest)
+$Entries = @(Get-Content $SourceManifest -Encoding UTF8)
 $CurrentFiles = @(foreach ($dir in @("Assets", "Packages", "ProjectSettings")) { Get-ChildItem (Join-Path $RepoRoot $dir) -Recurse -File })
 if ($Entries.Count -ne $CurrentFiles.Count) { throw "Unity source file set changed; rebuild player." }
 foreach ($line in $Entries) {

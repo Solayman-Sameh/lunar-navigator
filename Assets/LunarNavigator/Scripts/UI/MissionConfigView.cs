@@ -31,7 +31,7 @@ namespace LunarNavigator.UI
         public Button StepPlus1d { get; private set; }
 
         // State
-        public DateTime SelectedLandingUtc { get; private set; } = new DateTime(2026, 12, 1, 0, 0, 0, DateTimeKind.Utc);
+        public DateTime SelectedLandingUtc { get; private set; } = DemoSimulation.DeviceUtcSecond;
         public double SelectedDurationHours { get; private set; } = 72.0;
         public bool IsLoading { get; private set; } = false;
 
@@ -41,6 +41,8 @@ namespace LunarNavigator.UI
         private Label lblDayVal;
         private Label lblHourVal;
         private Label lblMinuteVal;
+        private Label lblSecondVal;
+        public event Action OnCurrentTimeRequested;
 
         // Events
         public event Action<DateTime, double> OnAnalyzeRequested;
@@ -69,7 +71,7 @@ namespace LunarNavigator.UI
             // Keep TxtLandingUtc synchronized as internal data binding
             TxtLandingUtc = new TextField();
             TxtLandingUtc.style.display = DisplayStyle.None;
-            TxtLandingUtc.value = SelectedLandingUtc.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+            TxtLandingUtc.value = SelectedLandingUtc.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
             timeRow.Add(TxtLandingUtc);
 
             var stepperRow = new VisualElement();
@@ -80,6 +82,7 @@ namespace LunarNavigator.UI
             lblDayVal = new Label(SelectedLandingUtc.Day.ToString("D2"));
             lblHourVal = new Label(SelectedLandingUtc.Hour.ToString("D2"));
             lblMinuteVal = new Label(SelectedLandingUtc.Minute.ToString("D2"));
+            lblSecondVal = new Label(SelectedLandingUtc.Second.ToString("D2"));
 
             stepperRow.Add(CreateStepperUnit("year", lblYearVal, () => StepYear(1), () => StepYear(-1), 46f, "Step Year (±1y) · Use arrow buttons"));
             var sepYM = new Label("-") { name = "sep-ym" };
@@ -104,12 +107,20 @@ namespace LunarNavigator.UI
 
             stepperRow.Add(CreateStepperUnit("minute", lblMinuteVal, () => StepMinute(10), () => StepMinute(-10), 30f, "Step Minute (±10min) · Use arrow buttons"));
 
+            var sepMS = new Label(":"); sepMS.AddToClassList("stepper-separator"); stepperRow.Add(sepMS);
+            stepperRow.Add(CreateStepperUnit("second", lblSecondVal, () => StepSecond(1), () => StepSecond(-1), 30f, "Seconds (+/-1)"));
             var utcTag = new Label("UTC");
             utcTag.AddToClassList("stepper-utc-tag");
             utcTag.tooltip = "Coordinated Universal Time";
             stepperRow.Add(utcTag);
 
             timeRow.Add(stepperRow);
+            var useNow = new Button(() => { SetLandingUtc(DemoSimulation.DeviceUtcSecond); OnCurrentTimeRequested?.Invoke(); }) {
+                text = "Use current UTC", name = "mission-use-current-utc",
+                tooltip = "Set the mission start from this device's current UTC clock and resume 1x playback."
+            };
+            useNow.AddToClassList("chip-btn");
+            timeRow.Add(useNow);
             Add(timeRow);
 
             // 2. Mission Duration (Editable in hours, preserving exact intended interval)
@@ -301,10 +312,11 @@ namespace LunarNavigator.UI
             if (lblDayVal != null) lblDayVal.text = SelectedLandingUtc.Day.ToString("D2");
             if (lblHourVal != null) lblHourVal.text = SelectedLandingUtc.Hour.ToString("D2");
             if (lblMinuteVal != null) lblMinuteVal.text = SelectedLandingUtc.Minute.ToString("D2");
+            if (lblSecondVal != null) lblSecondVal.text = SelectedLandingUtc.Second.ToString("D2");
 
             if (TxtLandingUtc != null)
             {
-                TxtLandingUtc.value = SelectedLandingUtc.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                TxtLandingUtc.value = SelectedLandingUtc.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
             }
             ClearError();
             OnConfigChanged?.Invoke(SelectedLandingUtc, SelectedDurationHours);
@@ -352,6 +364,12 @@ namespace LunarNavigator.UI
             UpdateStepperDisplay();
         }
 
+        public void StepSecond(int delta)
+        {
+            try { SelectedLandingUtc = SelectedLandingUtc.AddSeconds(delta); } catch (ArgumentOutOfRangeException) { }
+            UpdateStepperDisplay();
+        }
+
         public void SetDuration(double hours)
         {
             SelectedDurationHours = hours;
@@ -377,9 +395,9 @@ namespace LunarNavigator.UI
         private void HandleAnalyzeClicked()
         {
             if (IsLoading) return;
-            if(!DateTime.TryParse(TxtLandingUtc.value,CultureInfo.InvariantCulture,DateTimeStyles.AdjustToUniversal|DateTimeStyles.AssumeUniversal,out var utc) ||
+            if(!DateTime.TryParseExact(TxtLandingUtc.value,new[]{"yyyy-MM-dd HH:mm","yyyy-MM-dd HH:mm:ss"},CultureInfo.InvariantCulture,DateTimeStyles.AdjustToUniversal|DateTimeStyles.AssumeUniversal,out var utc) ||
                !double.TryParse(TxtDurationHours.value,NumberStyles.Float,CultureInfo.InvariantCulture,out var hours) || double.IsNaN(hours)||double.IsInfinity(hours)||hours<1||hours>744)
-            {ShowError("Enter a UTC date/time (yyyy-MM-dd HH:mm) and 1-744 mission hours.");return;}
+            {ShowError("Enter a UTC date/time (yyyy-MM-dd HH:mm:ss) and 1-744 mission hours.");return;}
             SelectedLandingUtc=utc;SelectedDurationHours=hours;
             ClearError();
             OnAnalyzeRequested?.Invoke(SelectedLandingUtc, SelectedDurationHours);

@@ -15,11 +15,21 @@ AssetBundles/
 /Assets/AssetStoreTools*
 crashlytics-build.properties
 sysinfo.txt
+/.utmp/
+/TestResults/
+/ProfilerCaptures/
+/ShaderCache/
+/.history/
+/*.log
+*.stackdump
+*.dmp
 
 # Local agent tooling and planning history
 /.agents/
 /.specify/
 /.codex/
+/.aws/
+/.ssh/
 /specs/
 /AGENTS.md
 
@@ -39,6 +49,9 @@ sysinfo.txt
 !/docs/REPOSITORY_CONTENTS.md
 !/docs/RELEASE_NOTES_v1.1.0.md
 !/docs/RELEASE_VALIDATION.md
+!/docs/CLOCK_RUNTIME_FIX.md
+!/docs/CLOCK_PACKAGING_VALIDATION.md
+!/docs/REPOSITORY_AUDIT.md
 /backend/docs/*
 !/backend/docs/API_CONTRACT.md
 !/backend/docs/api-examples/
@@ -52,7 +65,6 @@ sysinfo.txt
 
 # IDE output (the hand-authored launcher project is required)
 .vs/
-.vsconfig
 .idea/
 .vscode/
 *.csproj
@@ -61,6 +73,8 @@ sysinfo.txt
 /launcher/obj/
 *.unityproj
 *.sln
+*.csproj.meta
+*.sln.meta
 *.suo
 *.tmp
 *.user
@@ -85,6 +99,11 @@ __pycache__/
 .pytest_cache/
 pytest-cache-files-*/
 .coverage
+.coverage.*
+coverage.xml
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
 htmlcov/
 .tox/
 .nox/
@@ -93,12 +112,14 @@ build/
 *.egg-info/
 .eggs/
 /backend/tests/.work/
-/backend/data/api/
-/backend/data/cache/
-/backend/data/runs/
-/backend/data/horizons_inbox/
-/backend/data/horizons_output/
-/backend/data/dem/
+# The site catalog is the only maintained runtime data input here.
+# Curated scientific regression data belongs under backend/tests/fixtures/.
+/backend/data/*
+!/backend/data/sites.json
+# Diagnostic tools may be run from the repository root or backend/.
+horizons_output/
+/data/cache/
+/data/runs/
 /deployment/build-manifest.json
 /deployment/COMMIT.md
 /deployment/VALIDATION.md
@@ -112,12 +133,14 @@ build/
 *.aab
 *.unitypackage
 *.app
-*.mp4
+/*.mp4
+/media/*.mp4
 
 # Local configuration and secrets
 .env
 .env.*
 !.env.example
+!.env.template
 *.pem
 *.key
 *.cert

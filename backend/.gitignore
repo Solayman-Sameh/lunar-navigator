@@ -1,14 +1,16 @@
+# Backend-local cache and environment protection. See root .gitignore.
 .venv/
 venv/
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
 *.egg-info/
 dist/
 tests/.work/
 pytest-cache-files-*/
-data/api/
-data/cache/
-data/runs/
-data/dem/
-data/horizons_inbox/
+# Keep the runtime catalog; raw runs and downloaded data are not source.
+data/*
+!data/sites.json

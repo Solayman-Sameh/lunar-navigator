@@ -91,6 +91,13 @@ capture of newly launched installer windows were restricted in the build environ
 These checks are not a clean-machine or live-network certification. See
 [release validation](RELEASE_VALIDATION.md) for the exact evidence and limits.
 
+The latest clock-fix Windows build completed in 191.5 seconds with zero errors and
+warnings. The exact staged EXE was launched with its private backend and completed
+an uncached NASA analysis while retaining 1x playback and the selected mission start.
+Native pause/resume and live UTC behavior were also checked; this was not a repeat
+clean-machine installation test. Current details are in
+[clock packaging validation](CLOCK_PACKAGING_VALIDATION.md).
+
 Historical aggregate test counts are not presented as newly executed v1.1.0 results.
 Public release publication is a separate step from local build verification.
 

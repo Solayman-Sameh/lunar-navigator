@@ -541,8 +541,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LunarNavigator.DemoSimulation
   seconds: 0
-  paused: 1
-  speed: 3600
+  paused: 0
+  speed: 1
 --- !u!114 &572628125
 MonoBehaviour:
   m_ObjectHideFlags: 0

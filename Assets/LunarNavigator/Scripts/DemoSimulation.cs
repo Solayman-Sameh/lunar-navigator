@@ -100,15 +100,24 @@ namespace LunarNavigator
         public static readonly DateTime Epoch = new DateTime(2026, 12, 1, 0, 0, 0, DateTimeKind.Utc);
         public const double Duration = 30 * 86400;
         public double seconds;
-        public bool paused = true;
-        public double speed = 3600;
+        public bool paused = false;
+        public double speed = 1;
 
         public ILunarEphemeris Provider { get; private set; } = new IllustrativeDemoProvider();
 
-        public DateTime StartTime => AnalysisRepository.Instance.HasData ? AnalysisRepository.Instance.T0 : Epoch;
-        public double TotalDuration => AnalysisRepository.Instance.HasData && AnalysisRepository.Instance.Count > 1
-            ? (AnalysisRepository.Instance.Count - 1) * (double)AnalysisRepository.Instance.StepSeconds
-            : Duration;
+        // Mission selection owns the clock, not whichever dataset was last loaded.
+        DateTime missionStartUtc = DeviceUtcSecond;
+        double missionDurationSeconds = 72 * 3600;
+        public static DateTime DeviceUtcMinute
+        {
+            get { var now = DateTime.UtcNow; return new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0, DateTimeKind.Utc); }
+        }
+        public DateTime StartTime => missionStartUtc;
+        public static DateTime DeviceUtcSecond
+        {
+            get { var now = DateTime.UtcNow; return new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second, DateTimeKind.Utc); }
+        }
+        public double TotalDuration => missionDurationSeconds;
 
         public DateTime Utc => StartTime.AddSeconds(seconds);
 
@@ -117,10 +126,32 @@ namespace LunarNavigator
             AnalysisRepository.Instance.Reload();
             Provider = new DataDrivenEphemerisProvider(app);
             seconds = 0;
+            paused = true;
+            speed = 1;
+            SetMissionWindow(DeviceUtcSecond, 72);
+            paused = false;
+        }
+
+        public void SetMissionWindow(DateTime utc, double durationHours)
+        {
+            if (!double.IsFinite(durationHours) || durationHours <= 0 || durationHours > 744)
+                throw new ArgumentOutOfRangeException(nameof(durationHours));
+            utc = utc.Kind == DateTimeKind.Unspecified ? DateTime.SpecifyKind(utc, DateTimeKind.Utc) : utc.ToUniversalTime();
+            if (missionStartUtc == utc && missionDurationSeconds == durationHours * 3600) return;
+            missionStartUtc = utc;
+            missionDurationSeconds = durationHours * 3600;
+            seconds = 0;
+            paused = true;
         }
 
         public void SetTime(double value) { seconds = double.IsNaN(value) ? 0 : Math.Clamp(value, 0, TotalDuration); }
-        public void Advance(double delta) { if (!paused) SetTime(seconds + delta * speed); }
+        public void Advance(double delta)
+        {
+            if (paused || !double.IsFinite(delta) || delta <= 0) return;
+            if (!double.IsFinite(speed) || speed <= 0) speed = 1;
+            SetTime(seconds + delta * speed);
+            if (seconds >= TotalDuration) paused = true;
+        }
         public void Toggle() { paused = !paused; }
         void Update() { Advance(Time.unscaledDeltaTime); }
     }

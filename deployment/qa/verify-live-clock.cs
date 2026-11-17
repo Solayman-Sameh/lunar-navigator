@@ -1,0 +1,90 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Reflection;
+using System.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.UIElements;
+using LunarNavigator;
+using LunarNavigator.UI;
+
+System.IO.Directory.CreateDirectory("Builds/ClockValidation");
+Application.runInBackground = true;
+await Task.Delay(1200); // Let the first background frame complete before sampling.
+var app = UnityEngine.Object.FindAnyObjectByType<LunarApplication>();
+if (!Application.isPlaying || app == null) throw new Exception("Run the application in Play Mode first");
+var checks = new Dictionary<string, bool>();
+void Check(string name, bool value) { checks[name] = value; }
+var root = app.UI.GetComponent<UIDocument>().rootVisualElement;
+var missionField = typeof(NavigatorUI).GetField("missionConfigView", BindingFlags.Instance | BindingFlags.NonPublic);
+MissionConfigView Mission() => (MissionConfigView)missionField.GetValue(app.UI);
+Check("startupRunningAt1x", !app.Clock.paused && app.Clock.speed == 1);
+Check("startupUsesDeviceUtcSecond", Math.Abs((app.Clock.Utc - DateTime.UtcNow).TotalSeconds) < 5);
+Check("visibleMissionSecondControl", root.Q<Label>("val-second") != null && root.Q<Label>("val-second").resolvedStyle.display != DisplayStyle.None);
+var finder = new OpportunityFinderView();
+Check("visibleFinderSecondControl", finder.Q<Label>("val-second") != null);
+Check("finderDefaultIncludesSeconds", Math.Abs((finder.SelectedEarliestUtc - DateTime.UtcNow).TotalSeconds) < 2);
+var initialInput = app.UI.txtLandingUtc.value;
+var watch = System.Diagnostics.Stopwatch.StartNew();
+var elapsedStart = app.Clock.seconds;
+var labelStart = root.Q<Label>("mission-utc-clock").text;
+var liveStart = root.Q<Label>("device-utc-clock").text;
+await Task.Delay(5200);
+var realElapsed = watch.Elapsed.TotalSeconds;
+var missionElapsed = app.Clock.seconds - elapsedStart;
+Check("observedFiveSecondsAt1x", Math.Abs(realElapsed - missionElapsed) < .6 && missionElapsed > 4.5);
+Check("missionDisplayTicks", root.Q<Label>("mission-utc-clock").text != labelStart);
+Check("liveDeviceDisplayTicks", root.Q<Label>("device-utc-clock").text != liveStart);
+Check("missionStartRemainsFixed", app.UI.txtLandingUtc.value == initialInput);
+app.Clock.paused = true;
+elapsedStart = app.Clock.seconds;
+liveStart = root.Q<Label>("device-utc-clock").text;
+await Task.Delay(2200);
+Check("pauseHoldsPlayhead", app.Clock.seconds == elapsedStart);
+Check("liveClockTicksWhilePaused", root.Q<Label>("device-utc-clock").text != liveStart);
+Check("pauseIsVisible", root.Q<Label>("mission-utc-clock").text.Contains("PAUSED"));
+app.Clock.paused = false;
+elapsedStart = app.Clock.seconds;
+app.Clock.SetMissionWindow(Mission().SelectedLandingUtc, Mission().SelectedDurationHours);
+Check("sameWindowDoesNotResetOrPause", app.Clock.seconds == elapsedStart && !app.Clock.paused);
+app.UI.Initialize(app);
+root = app.UI.GetComponent<UIDocument>().rootVisualElement;
+Check("uiRebuildPreservesPlayhead", Math.Abs(app.Clock.seconds - elapsedStart) < .1 && !app.Clock.paused);
+var submit = typeof(MissionConfigView).GetMethod("HandleAnalyzeClicked", BindingFlags.Instance | BindingFlags.NonPublic);
+var oldCulture = CultureInfo.CurrentCulture;
+try {
+    foreach (var culture in new[] { "en-US", "en-GB", "ar-EG", "ar-SA" }) {
+        CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(culture);
+        var form = new MissionConfigView();
+        var chosen = new DateTime(2027, 2, 15, 6, 20, 37, DateTimeKind.Utc);
+        form.SetLandingUtc(chosen);
+        DateTime? requested = null;
+        form.OnAnalyzeRequested += (utc, duration) => requested = utc;
+        submit.Invoke(form, null);
+        Check("secondsPreserved_" + culture, requested == chosen && form.TxtLandingUtc.value == "2027-02-15 06:20:37");
+        form.SetLandingUtc(new DateTime(2026, 12, 31, 23, 59, 59, DateTimeKind.Utc));
+        form.StepSecond(1);
+        Check("secondRollover_" + culture, form.SelectedLandingUtc == new DateTime(2027, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+        var search = new OpportunityFinderView();
+        search.SetEarliestUtc(chosen);
+        LunarNavigator.Data.LiveOpportunityRequest searchRequest = null;
+        search.OnSearchRequested += request => searchRequest = request;
+        typeof(OpportunityFinderView).GetMethod("TriggerSearch", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(search, null);
+        Check("finderGregorianSeconds_" + culture, searchRequest != null && searchRequest.earliest_landing_utc == "2027-02-15T06:20:37Z" && search.TxtEarliestUtc.value == "2027-02-15 06:20:37 UTC");
+    }
+} finally { CultureInfo.CurrentCulture = oldCulture; }
+var future = new DateTime(2028, 7, 20, 3, 40, 23, DateTimeKind.Utc);
+Mission().SetLandingUtc(future);
+Check("editingDatePausesAtChosenSecond", app.Clock.StartTime == future && app.Clock.Utc == future && app.Clock.paused);
+app.Clock.SetTime(app.Clock.TotalDuration - .2);
+app.Clock.paused = false;
+app.Clock.Advance(1);
+Check("coverageEndPausesWithoutWrapping", app.Clock.seconds == app.Clock.TotalDuration && app.Clock.paused);
+// Use the actual current-time button's registered action.
+var nowButton = root.Q<Button>("mission-use-current-utc");
+var simulate = typeof(Clickable).GetMethod("SimulateSingleClick", BindingFlags.Instance | BindingFlags.NonPublic);
+simulate.Invoke(nowButton.clickable, new object[] { null, 0 });
+Check("useCurrentUtcResumesAt1x", !app.Clock.paused && app.Clock.speed == 1 && Math.Abs((app.Clock.Utc - DateTime.UtcNow).TotalSeconds) < 2);
+var result = new { checks, realElapsed, missionElapsed, deviceUtc = DateTime.UtcNow, selectedUtc = Mission().SelectedLandingUtc, clockUtc = app.Clock.Utc };
+System.IO.File.WriteAllText("Builds/ClockValidation/regression.json", Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
+return result;

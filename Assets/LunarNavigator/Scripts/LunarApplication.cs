@@ -85,7 +85,7 @@ namespace LunarNavigator
             SelectedSite = site;
             SelectionRevision++;
             Data.AnalysisRepository.Instance.ActivateSite(site.id);
-            if (Clock) Clock.SetTime(0);
+            if (Clock) { Clock.SetTime(0); Clock.paused = true; }
             if (Director) Director.Select(site);
             if (World) World.UpdateSkyline();
             if (UI) UI.OnSiteChanged(site);

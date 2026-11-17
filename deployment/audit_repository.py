@@ -7,11 +7,12 @@ import subprocess
 from urllib.parse import unquote
 
 
-def audit(root, git_dir=None):
+def audit(root, git_dir=None, selected_files=None):
     command = ['git']
     if git_dir:
         command += [f'--git-dir={git_dir}', f'--work-tree={root}']
-    files = subprocess.check_output(command + ['ls-files', '-z'], cwd=root).decode().split('\0')
+    files = (selected_files if selected_files is not None else
+             subprocess.check_output(command + ['ls-files', '-z'], cwd=root).decode().split('\0'))
     files = {name for name in files if name}
     errors = []
     warnings = []
@@ -25,14 +26,14 @@ def audit(root, git_dir=None):
         path = root / name
         if name.startswith(forbidden) or any(p in path.parts for p in ('.venv', '__pycache__')):
             errors.append(f'Local/generated content tracked: {name}')
-        if path.suffix.lower() in ('.exe', '.zip', '.mp4', '.pyc'):
+        if path.suffix.lower() in ('.exe', '.zip', '.mp4', '.pyc', '.pfx', '.pem', '.key'):
             errors.append(f'Release payload tracked: {name}')
         if not path.is_file():
             errors.append(f'Indexed file missing: {name}')
             continue
         if path.stat().st_size >= 100 * 1024 * 1024:
             errors.append(f'File exceeds source size gate: {name}')
-        if path.suffix.lower() not in ('.md', '.cs', '.py', '.json', '.ps1', '.iss', '.meta', '.txt', '.yml'):
+        if path.suffix.lower() not in ('.md', '.cs', '.py', '.json', '.ps1', '.iss', '.meta', '.txt', '.yml', '.yaml', '.asset', '.unity', '.uss', '.tss', '.csproj', '.vsconfig'):
             continue
         text = path.read_text(encoding='utf-8-sig', errors='replace')
         if secret.search(text):
@@ -81,7 +82,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--root', type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument('--git-dir', type=Path)
+    parser.add_argument('--files-from', type=Path, help='JSON array of repository-relative paths for a read-only proposed-tree audit')
     args = parser.parse_args()
-    result = audit(args.root.resolve(), args.git_dir.resolve() if args.git_dir else None)
+    selected = json.loads(args.files_from.read_text(encoding='utf-8-sig')) if args.files_from else None
+    if selected is not None and (not isinstance(selected, list) or any(not isinstance(p, str) or Path(p).anchor or '..' in Path(p).parts for p in selected)):
+        parser.error('--files-from must contain safe relative file paths')
+    result = audit(args.root.resolve(), args.git_dir.resolve() if args.git_dir else None, selected)
     print(json.dumps(result, indent=2))
     raise SystemExit(bool(result['errors']))

@@ -2,11 +2,18 @@
 
 **Prepared 17 November 2026. This record does not itself claim GitHub publication.**
 
-## Executed checks
+## Latest local package
+
+The clock repair is packaged in `v110-clock-runtime-fixed-final`. See
+[CLOCK_PACKAGING_VALIDATION.md](CLOCK_PACKAGING_VALIDATION.md) for current
+build, native EXE, branding and checksum evidence. Root and Dist setup files
+have been replaced locally; no publication or installation upgrade was performed.
+
+## Earlier executed checks
 
 | Check | Result |
 | --- | --- |
-| Icon refresh Unity player build, 6000.6.3f1 | Succeeded in 103.1 s; zero errors, zero warnings |
+| Timeline fix Unity player build, 6000.6.3f1 | Fresh build 63.2 s; incremental build 17.4 s; zero errors, zero warnings |
 | Backend plus deployment test suite | 158 passed; existing AnyIO deprecation warning |
 | C# launcher regression harness | 13 passed |
 | Additional lifecycle tests against assembled private Python | 2 passed |
@@ -33,14 +40,14 @@ short checkout path on Windows. This was not an additional scientific model chan
 ## Exact installer identity
 
 - File: `LunarNavigator_Setup.exe`
-- Bytes: **68,213,422** (65.05 MiB)
-- SHA-256: **6E7950B693EF508C6BEAC5FD400BEBD36D98E8A15CBE89FB42C0ACE8E0EB5A8E**
+- Bytes: **68,218,145** (65.06 MiB)
+- SHA-256: **0CA56357A19EE9ECD5F3A39E0CA5C9EB705516589B8A0BF03D33106EF619B8F3**
 - Private runtime: CPython 3.11.9 x64; launcher targets .NET Framework 4.8 x64.
 - API/OpenAPI compatibility version remains 1.0.0; app version is 1.1.0.
 
-Source cleanup and test/documentation portability changes do not alter the
-already-built Unity application or scientific runtime implementation. The release
-asset checksum identifies the previously verified icon-refresh installer.
+This checksum identifies the local timeline-fix installer, superseding the earlier
+icon-refresh installer. The Unity player was rebuilt for the playback fix; scientific
+calculations were unchanged. See the local timeline repair record for clock checks.
 
 ## Verification limits
 

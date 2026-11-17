@@ -9,13 +9,14 @@ ephemerides.
 
 ![LunarNavigator v1.1.0 interface](media/ui-overview.png)
 
-*Current application capture using a validated cached NASA/JPL analysis for
-Shackleton Rim, 1 December 2026 UTC, 72 hours. Visible terrain is illustrative;
-the geometric-only scope is shown in the interface.*
+*Verified application capture after an uncached NASA/JPL analysis for Shackleton
+Rim, 17 November 2026 at 18:09:35 UTC, 72 hours. The seconds controls and running
+timeline are visible. Terrain is illustrative; analysis is geometric only.*
 
 ## Install and run
 
-1. Open the [v1.1.0 release](https://github.com/Solayman-Sameh/lunar-navigator/releases/tag/v1.1.0).
+1. Open [Releases](https://github.com/Solayman-Sameh/lunar-navigator/releases).
+   The v1.1.0 installer is prepared locally; download availability depends on publication.
 2. Download **LunarNavigator_Setup.exe**. The old standalone ZIP is superseded;
    it does not represent the supported v1.1.0 installation.
 3. Run setup and choose the installation folder. You can optionally create a
@@ -72,6 +73,16 @@ Uninstall through Windows **Installed apps**; uninstall preserves user data.
 **Guide** explains controls and result meanings. **Guide → About Lunar Navigator**
 shows the application version and scientific scope.
 
+The app starts from device UTC and plays at **1x real time**: one elapsed second
+advances the mission by one second. Seconds are visible in the date controls and
+timeline. **LIVE UTC** in the header always shows the device clock, even while
+mission playback is paused. The landing date is the fixed start used for analysis;
+completing an analysis preserves the playhead and playback state. Editing a mission
+window or selecting a site pauses playback for review. **Use current UTC** resets
+the start to now and resumes 1x. Faster playback is an explicit choice in View
+options > Graphics & playback; click the displayed rate to restore 1x. Playback
+pauses at the end of coverage without wrapping.
+
 | Control | Action |
 | --- | --- |
 | 1 / 2 / 3 / 4 | Global / approach / local orbit / surface view |
@@ -111,6 +122,7 @@ their required `.meta` files.
 LunarNavigator/
   .gitignore
   .gitattributes
+  .vsconfig                Shared Visual Studio Unity workload selection
   CHANGELOG.md
   README.md
   requirements.txt

@@ -42,7 +42,7 @@ namespace LunarNavigator.Editor
             evidence=new List<string>();var app=UnityEngine.Object.FindAnyObjectByType<LunarApplication>();
             Check(Application.isPlaying&&app,"Play Mode application");if(!app)return Save("runtime");
             var clock=app.Clock;clock.paused=true;clock.SetTime(100);clock.Advance(3);Check(clock.seconds==100,"Paused clock stable");
-            clock.paused=false;clock.speed=60;clock.Advance(2);Check(clock.seconds==220,"Clock speed advances");clock.SetTime(-1);Check(clock.seconds==0,"Clock lower bound");clock.SetTime(double.MaxValue);Check(clock.seconds==clock.TotalDuration,"Clock upper bound");clock.SetTime(0);clock.paused=true;clock.speed=3600;
+            clock.paused=false;clock.speed=60;clock.Advance(2);Check(clock.seconds==220,"Clock speed advances");clock.SetTime(-1);Check(clock.seconds==0,"Clock lower bound");clock.SetTime(double.MaxValue);Check(clock.seconds==clock.TotalDuration,"Clock upper bound");clock.SetTime(0);clock.paused=true;clock.speed=1;
             foreach(var site in app.sites){app.SelectSite(site);Check(app.SelectedSite==site&&app.Director.selected==site,"Shared selection "+site.displayName);}
             app.SelectSite(app.sites[0]);
             var director=app.Director;

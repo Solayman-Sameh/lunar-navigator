@@ -146,7 +146,8 @@ and February 2027 requests, saves both responses, independently parses retained
 NASA source bytes, compares date windows/cache identities and stops its own server:
 
 ```powershell
-Set-Location -LiteralPath 'C:\Users\user\Documents\Unity\LunarNavigator'; & '.\backend\.venv\Scripts\python.exe' '.\backend\live_api_proof.py'
+# Run from the repository root.
+& '.\backend\.venv\Scripts\python.exe' '.\backend\live_api_proof.py'
 ```
 
 It prints a unique backend/data/runs/api-live-* directory containing requests,
@@ -259,7 +260,8 @@ fails the search, and no filter is silently ignored.
 From ordinary Windows PowerShell outside Codex:
 
 ```powershell
-Set-Location -LiteralPath 'C:\Users\user\Documents\Unity\LunarNavigator'; & '.\backend\.venv\Scripts\python.exe' '.\backend\live_finder_proof.py' --landing-utc '2027-02-15T06:00:00Z' --search-utc '2026-12-01T00:00:00Z' --mission-hours 24 --window-hours 48
+# Run from the repository root.
+& '.\backend\.venv\Scripts\python.exe' '.\backend\live_finder_proof.py' --landing-utc '2027-02-15T06:00:00Z' --search-utc '2026-12-01T00:00:00Z' --mission-hours 24 --window-hours 48
 ```
 
 This starts real Uvicorn on a free localhost port, calls /sites, /analyze using the

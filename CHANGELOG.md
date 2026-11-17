@@ -4,6 +4,14 @@
 
 ### Fixed
 
+- Timeline starts from device UTC at 1x rather than the previous 3600x default.
+  Date controls include seconds; a separate live UTC clock continues while paused.
+  Analysis preserves the selected start, playhead and playback state. Editing the
+  window or selecting a site pauses; Use current UTC resumes 1x. Reaching coverage
+  end pauses without wrapping.
+- Opportunity Finder serializes Gregorian UTC dates independently of the Windows
+  regional calendar, preserving seconds in requests and arrival displays.
+
 - Surface clicks select the clicked coordinate instead of snapping to nearby landmarks.
 - WASD movement, pointer dragging and UI interaction coexist more consistently.
 - Mission results are invalidated when their location or configuration changes.

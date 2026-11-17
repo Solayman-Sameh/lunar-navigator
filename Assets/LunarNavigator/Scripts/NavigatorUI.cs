@@ -43,7 +43,7 @@ namespace LunarNavigator
         MissionConfigView missionConfigView;
         Button btnAddCompare;
         double selectedDurationHours = 72;
-        DateTime selectedLandingUtc = new DateTime(2026, 12, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime selectedLandingUtc = DemoSimulation.DeviceUtcSecond;
         public TextField txtLandingUtc => missionConfigView?.TxtLandingUtc;
         public Button btnAnalyze => missionConfigView?.BtnAnalyze;
 
@@ -65,8 +65,8 @@ namespace LunarNavigator
         SkylineChartElement skylineChartElement;
 
         // Timeline controls
-        Button btnPlayPause, btnTimelineToggle;
-        Label lblTimelineUtc, lblTimelineLossStatus;
+        Button btnPlayPause, btnTimelineToggle, btnTimelineSpeed;
+        Label lblTimelineUtc, lblTimelineLossStatus, lblDeviceUtc;
         VisualElement timelineBody;
 
         // Opportunity Finder controls
@@ -165,6 +165,7 @@ namespace LunarNavigator
 
         public void Initialize(LunarApplication value)
         {
+            bool clockWasPlaying = value.Clock != null && !value.Clock.paused;
             EnsureUIToolkitInput();
             isInitializing = true;
             assessedData = null;
@@ -231,12 +232,9 @@ namespace LunarNavigator
             overlay.Add(guidanceLabel);
             root.RegisterCallback<GeometryChangedEvent>(_=>ApplyResponsiveLayout());ApplyResponsiveLayout();
 
-            // Set initial state from analysis repository
-            if (AnalysisRepository.Instance.HasData)
-            {
-                selectedLandingUtc = AnalysisRepository.Instance.T0;
-                if (missionConfigView != null) missionConfigView.SetLandingUtc(selectedLandingUtc);
-            }
+            // Loading/rebuilding a view must never choose a date from cached data.
+            app.Clock?.SetMissionWindow(selectedLandingUtc, selectedDurationHours);
+            if (clockWasPlaying && app.Clock != null) app.Clock.paused = false;
 
             isInitializing = false;
             SetMode(AppMode.Inspect);
@@ -375,6 +373,11 @@ namespace LunarNavigator
             var sub = new Label("SOUTH-POLE LANDING SITE EVALUATION");
             sub.AddToClassList("eyebrow");
             brandBlock.Add(sub);
+            lblDeviceUtc = new Label { name = "device-utc-clock", pickingMode = PickingMode.Ignore };
+            lblDeviceUtc.style.fontSize = 10;
+            lblDeviceUtc.style.color = new Color(.65f, .85f, .95f);
+            lblDeviceUtc.tooltip = "Live device UTC clock. The landing date below is the fixed start of your mission analysis.";
+            brandBlock.Add(lblDeviceUtc);
 
             // Center: Mode Switch
             modeSwitchContainer = new VisualElement { name = "mode-switch", pickingMode = PickingMode.Ignore };
@@ -466,10 +469,17 @@ namespace LunarNavigator
             missionConfigView = new MissionConfigView();
             missionConfigView.SetLandingUtc(selectedLandingUtc);
             missionConfigView.SetDuration(selectedDurationHours);
+            missionConfigView.OnCurrentTimeRequested += () =>
+            {
+                if (app.Clock == null) return;
+                app.Clock.speed = 1;
+                app.Clock.paused = false;
+            };
             missionConfigView.OnConfigChanged += (utc, durationH) =>
             {
                 selectedLandingUtc = utc;
                 selectedDurationHours = durationH;
+                app.Clock?.SetMissionWindow(utc, durationH);
                 if (!isInitializing) InvalidateAssessment(true);
                 RunAnalysis();
             };
@@ -477,6 +487,7 @@ namespace LunarNavigator
             {
                 selectedLandingUtc = utc;
                 selectedDurationHours = durationH;
+                app.Clock?.SetMissionWindow(utc, durationH);
                 RequestOnlineAnalysis(utc, durationH);
             };
             missionConfigView.OnCancelRequested += () =>
@@ -589,6 +600,10 @@ namespace LunarNavigator
             btnPlayPause = new Button(() => app.Clock.Toggle()) { text = "▶" };
             btnPlayPause.AddToClassList("chip-btn");btnPlayPause.name="timeline-play";btnPlayPause.tooltip="Play mission timeline";
             leftControls.Add(btnPlayPause);
+            btnTimelineSpeed = new Button(() => app.Clock.speed = 1) { name = "timeline-speed", text = "1x real time" };
+            btnTimelineSpeed.AddToClassList("chip-btn");
+            btnTimelineSpeed.tooltip = "Playback rate. Click to restore real-time speed. Faster rates are in View options > Graphics & playback.";
+            leftControls.Add(btnTimelineSpeed);
 
             var bMinus1h = new Button(() => app.Clock.SetTime(app.Clock.seconds - 3600)) { text = "-1h" };
             bMinus1h.AddToClassList("chip-btn");
@@ -598,7 +613,7 @@ namespace LunarNavigator
             bPlus1h.AddToClassList("chip-btn");
             leftControls.Add(bPlus1h);
 
-            lblTimelineUtc = new Label("2026-12-01 00:00:00 UTC");
+            lblTimelineUtc = new Label { name = "mission-utc-clock" };
             lblTimelineUtc.AddToClassList("time-clock");
             lblTimelineUtc.style.marginLeft = 10;
             leftControls.Add(lblTimelineUtc);
@@ -1464,6 +1479,15 @@ namespace LunarNavigator
                     }
                     if (adapted != null)
                     {
+                        if (!DateTime.TryParse(adapted.ephemeris?.t0_utc, CultureInfo.InvariantCulture,
+                            DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out var responseStart) ||
+                            responseStart != landingUtc || adapted.metrics == null ||
+                            Math.Abs(adapted.metrics.duration_h - durationH) > 1e-9)
+                        {
+                            missionConfigView.ShowError("Response mission window does not match the selected UTC date and duration. Data rejected.");
+                            AssessmentFailed("Response mission window mismatch.");
+                            return;
+                        }
                         AnalysisRepository.Instance.SetDynamicAnalysis(adapted);
                         assessedData=adapted;assessedSiteId=selectedSite.id;assessedLandingUtc=landingUtc;assessedDurationHours=durationH;
                         assessmentState="Analysis ready";
@@ -1475,10 +1499,6 @@ namespace LunarNavigator
                             string earthMeaning = adapted.metrics.f_earth >= 1 ? "Earth visible throughout" : adapted.metrics.f_earth <= 0 ? "Earth hidden throughout" : $"Earth visible {adapted.metrics.f_earth:P0} of mission";
                             analysisFeedback.text = "Analysis ready";
                             analysisFeedback.tooltip=$"{selectedSite.displayName}: {sunMeaning}; {earthMeaning}. GEOMETRIC_ONLY.";
-                        }
-                        if (app && app.Clock)
-                        {
-                            app.Clock.SetTime(0);
                         }
                         RunAnalysis();
                         UpdateStatusBadge();
@@ -1622,8 +1642,10 @@ namespace LunarNavigator
             }
 
             // Clock update
-            lblTimelineUtc.text = app.Clock.Utc.ToString("yyyy-MM-dd  HH:mm:ss 'UTC'").ToUpperInvariant();
+            lblDeviceUtc.text = "LIVE UTC  " + DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+            lblTimelineUtc.text = app.Clock.Utc.ToString("yyyy-MM-dd  HH:mm:ss 'UTC'", CultureInfo.InvariantCulture) + (app.Clock.paused ? "  PAUSED" : "  PLAYING");
             btnPlayPause.text = app.Clock.paused ? "Play" : "Pause";
+            btnTimelineSpeed.text = app.Clock.speed == 1 ? "1x real time" : $"{app.Clock.speed:0}x accelerated";
             btnPlayPause.tooltip=app.Clock.paused?"Play mission timeline":"Pause mission timeline";
 
             timelineElement?.SetCurrentTime(app.Clock.seconds);

@@ -53,3 +53,14 @@ secret patterns and release checksum. Build outputs are never staged. The publis
 tag must refer to the reviewed release commit, and release notes must disclose
 the actual verification limits. README download instructions use the Releases
 page until v1.1.0 is actually published.
+
+## Current audited decisions
+
+See [REPOSITORY_AUDIT.md](REPOSITORY_AUDIT.md) for the full folder matrix and audit limits.
+Keep the shared `.vsconfig` (it contains only a Unity workload component, not a user profile).
+Maintain manual clock checks under `deployment/qa/`; their outputs remain ignored.
+Keep the current clock validation reports linked by the release summary.
+Only `backend/data/sites.json` is included from the working data directory;
+portable regression evidence remains under `backend/tests/fixtures/`.
+Do not infer a license grant: this checkout currently has no project LICENSE file.
+The owner must decide the code/artwork terms before describing it as open source.

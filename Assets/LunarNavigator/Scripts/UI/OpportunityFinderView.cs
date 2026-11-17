@@ -57,7 +57,7 @@ namespace LunarNavigator.UI
         public VisualElement ResultsScrollView { get; private set; }
 
         // State
-        public DateTime SelectedEarliestUtc { get; private set; } = new DateTime(2026, 12, 1, 0, 0, 0, DateTimeKind.Utc);
+        public DateTime SelectedEarliestUtc { get; private set; } = DemoSimulation.DeviceUtcSecond;
         public double SelectedSearchWindowH { get; private set; } = 48.0;
         public double SelectedMissionDurationH { get; private set; } = 24.0;
         public bool IsLoading { get; private set; } = false;
@@ -68,6 +68,7 @@ namespace LunarNavigator.UI
         private Label lblDayVal;
         private Label lblHourVal;
         private Label lblMinuteVal;
+        private Label lblSecondVal;
 
         // Segmented Duration Stepper Labels
         private Label lblSearchDaysVal;
@@ -139,7 +140,7 @@ namespace LunarNavigator.UI
 
             TxtEarliestUtc = new TextField();
             TxtEarliestUtc.style.display = DisplayStyle.None;
-            TxtEarliestUtc.value = SelectedEarliestUtc.ToString("yyyy-MM-dd HH:mm:ss") + " UTC";
+            TxtEarliestUtc.value = SelectedEarliestUtc.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture) + " UTC";
             timeRow.Add(TxtEarliestUtc);
 
             var stepperRow = new VisualElement();
@@ -150,6 +151,7 @@ namespace LunarNavigator.UI
             lblDayVal = new Label(SelectedEarliestUtc.Day.ToString("D2"));
             lblHourVal = new Label(SelectedEarliestUtc.Hour.ToString("D2"));
             lblMinuteVal = new Label(SelectedEarliestUtc.Minute.ToString("D2"));
+            lblSecondVal = new Label(SelectedEarliestUtc.Second.ToString("D2"));
 
             stepperRow.Add(CreateStepperUnit("year", lblYearVal, () => StepYear(1), () => StepYear(-1), 46f, "Step Year (±1y) · Use arrow buttons"));
             var sepYM = new Label("-") { name = "sep-ym" };
@@ -174,12 +176,20 @@ namespace LunarNavigator.UI
 
             stepperRow.Add(CreateStepperUnit("minute", lblMinuteVal, () => StepMinute(10), () => StepMinute(-10), 30f, "Step Minute (±10min) · Use arrow buttons"));
 
+            var sepMS = new Label(":"); sepMS.AddToClassList("stepper-separator"); stepperRow.Add(sepMS);
+            stepperRow.Add(CreateStepperUnit("second", lblSecondVal, () => StepSecond(1), () => StepSecond(-1), 30f, "Seconds (+/-1)"));
             var utcTag = new Label("UTC");
             utcTag.AddToClassList("stepper-utc-tag");
             utcTag.tooltip = "Coordinated Universal Time";
             stepperRow.Add(utcTag);
 
             timeRow.Add(stepperRow);
+            var useNow = new Button(() => SetEarliestUtc(DemoSimulation.DeviceUtcSecond)) {
+                text = "Use current UTC", name = "finder-use-current-utc",
+                tooltip = "Start the search from this device's current UTC clock, including seconds."
+            };
+            useNow.AddToClassList("chip-btn");
+            timeRow.Add(useNow);
             Add(timeRow);
 
             // 3. Durations (Search Window & Surface Stay vertically stacked with Days & Hours Segmented Steppers)
@@ -557,12 +567,19 @@ namespace LunarNavigator.UI
             if (lblDayVal != null) lblDayVal.text = SelectedEarliestUtc.Day.ToString("D2");
             if (lblHourVal != null) lblHourVal.text = SelectedEarliestUtc.Hour.ToString("D2");
             if (lblMinuteVal != null) lblMinuteVal.text = SelectedEarliestUtc.Minute.ToString("D2");
+            if (lblSecondVal != null) lblSecondVal.text = SelectedEarliestUtc.Second.ToString("D2");
 
             if (TxtEarliestUtc != null)
             {
-                TxtEarliestUtc.value = SelectedEarliestUtc.ToString("yyyy-MM-dd HH:mm:ss") + " UTC";
+                TxtEarliestUtc.value = SelectedEarliestUtc.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture) + " UTC";
             }
             ClearError();
+        }
+
+        public void StepSecond(int delta)
+        {
+            try { SelectedEarliestUtc = SelectedEarliestUtc.AddSeconds(delta); } catch (ArgumentOutOfRangeException) { }
+            UpdateStepperDisplay();
         }
 
         private void UpdateWindowSummary()
@@ -741,7 +758,7 @@ namespace LunarNavigator.UI
         {
             string dateText=TxtEarliestUtc.value.Trim();
             if(dateText.EndsWith(" UTC",StringComparison.OrdinalIgnoreCase)) dateText=dateText.Substring(0,dateText.Length-4);
-            if(!DateTime.TryParse(dateText,CultureInfo.InvariantCulture,DateTimeStyles.AdjustToUniversal|DateTimeStyles.AssumeUniversal,out var earliest) ||
+            if(!DateTime.TryParseExact(dateText,new[]{"yyyy-MM-dd HH:mm:ss","yyyy-MM-dd HH:mm"},CultureInfo.InvariantCulture,DateTimeStyles.AdjustToUniversal|DateTimeStyles.AssumeUniversal,out var earliest) ||
                !double.TryParse(TxtSearchWindowH.value,NumberStyles.Float,CultureInfo.InvariantCulture,out var span) ||
                !double.TryParse(TxtMissionDurationH.value,NumberStyles.Float,CultureInfo.InvariantCulture,out var mission) ||
                double.IsNaN(span) || double.IsInfinity(span) || span<=0 || span>744 ||
@@ -782,7 +799,7 @@ namespace LunarNavigator.UI
 
             var req = new LiveOpportunityRequest
             {
-                earliest_landing_utc = SelectedEarliestUtc.ToString("yyyy-MM-ddTHH:mm:ssZ"),
+                earliest_landing_utc = SelectedEarliestUtc.ToString("yyyy-MM-ddTHH:mm:ss'Z'", CultureInfo.InvariantCulture),
                 search_window_h = SelectedSearchWindowH,
                 mission_duration_h = SelectedMissionDurationH,
                 candidate_site_ids = new List<string>(selectedSiteIds).ToArray(),
@@ -972,7 +989,7 @@ namespace LunarNavigator.UI
                         string arrivalDisplay = miss.landing_utc;
                         if (DateTime.TryParse(miss.landing_utc, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out var dtArrival))
                         {
-                            arrivalDisplay = dtArrival.ToString("yyyy-MM-dd HH:mm") + " UTC";
+                            arrivalDisplay = dtArrival.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture) + " UTC";
                         }
                         var mTime = new Label($"Arrival: {arrivalDisplay}");
                         mTime.AddToClassList("opp-time");
