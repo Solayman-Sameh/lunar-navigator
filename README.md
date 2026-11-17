@@ -2,6 +2,11 @@
 
 **Lunar south-pole mission planning and visualization · v1.1.0 · Windows x64**
 
+**[Download LunarNavigator for Windows](https://github.com/Solayman-Sameh/lunar-navigator/releases/download/v1.1.0/LunarNavigator_Setup.exe)**
+
+Download and run `LunarNavigator_Setup.exe`. **Unity and Python are not required.**
+[Release notes and checksum](https://github.com/Solayman-Sameh/lunar-navigator/releases/tag/v1.1.0).
+
 Explore the Moon, choose a reference site or custom coordinate, and compare sunlight
 and direct-to-Earth visibility over a mission window. LunarNavigator combines a
 Unity 6 HDRP interface with a local Python service that obtains NASA/JPL Horizons
@@ -15,8 +20,7 @@ timeline are visible. Terrain is illustrative; analysis is geometric only.*
 
 ## Install and run
 
-1. Open [Releases](https://github.com/Solayman-Sameh/lunar-navigator/releases).
-   The v1.1.0 installer is prepared locally; download availability depends on publication.
+1. Open the [v1.1.0 release](https://github.com/Solayman-Sameh/lunar-navigator/releases/tag/v1.1.0).
 2. Download **LunarNavigator_Setup.exe**. The old standalone ZIP is superseded;
    it does not represent the supported v1.1.0 installation.
 3. Run setup and choose the installation folder. You can optionally create a

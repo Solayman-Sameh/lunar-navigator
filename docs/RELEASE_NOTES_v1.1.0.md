@@ -15,6 +15,10 @@ shortcut or root launcher. The previous standalone ZIP is superseded.
 
 ## Changes
 
+- Live UTC clock and seconds in date controls; startup runs at 1x real time.
+- Mission dates remain stable through analysis; results preserve playback without resets.
+- Fixed regional-calendar formatting and made accelerated playback explicit.
+
 - Precise coordinate picking without nearby-landmark snapping.
 - More consistent WASD, dragging and interface input handling.
 - Refined Mission Assessment layout, feedback, provenance and stale-result handling.
@@ -33,6 +37,11 @@ power budget or RF communications certification is provided.
 Uncached requests need internet; matching validated caches can be replayed offline.
 The installer is unsigned. Build-host checks passed; clean-machine acceptance and
 the live Windows installed-app listing are not claimed as verified in this environment.
-See `docs/RELEASE_VALIDATION.md` in the tagged source for the exact scope.
+See `docs/RELEASE_VALIDATION.md` and `docs/CLOCK_PACKAGING_VALIDATION.md` in the tagged source for the exact scope.
+
+The final clock-fixed installer passed native EXE checks including real NASA analysis,
+158 backend/deployment tests, and 13 launcher checks.
+
+Installer SHA-256: `58F4CB88EF386C58059A29A81E13A0CCCA559266D6CAC773E5B39CD5DB0618C1`.
 
 A narrated walkthrough is planned; the empty local MP4 placeholder is not a release asset.
