@@ -1,28 +1,30 @@
 # LunarNavigator
 
-**Lunar south-pole mission planning and visualization · v1.1.0 · Windows x64**
+**Lunar south-pole mission planning and visualization · v1.1.1 · Windows x64**
 
-**[Download LunarNavigator for Windows](https://github.com/Solayman-Sameh/lunar-navigator/releases/download/v1.1.0/LunarNavigator_Setup.exe)**
+**[Download LunarNavigator for Windows](https://github.com/Solayman-Sameh/lunar-navigator/releases/download/v1.1.1/LunarNavigator_Setup.exe)**
 
 Download and run `LunarNavigator_Setup.exe`. **Unity and Python are not required.**
-[Release notes and checksum](https://github.com/Solayman-Sameh/lunar-navigator/releases/tag/v1.1.0).
+**[Watch / download the narrated demo](https://github.com/Solayman-Sameh/lunar-navigator/releases/download/v1.1.1/LunarNavigator_Demo.mp4)**
+
+[Release notes and checksum](https://github.com/Solayman-Sameh/lunar-navigator/releases/tag/v1.1.1).
 
 Explore the Moon, choose a reference site or custom coordinate, and compare sunlight
 and direct-to-Earth visibility over a mission window. LunarNavigator combines a
 Unity 6 HDRP interface with a local Python service that obtains NASA/JPL Horizons
 ephemerides.
 
-![LunarNavigator v1.1.0 interface](media/ui-overview.png)
+![LunarNavigator v1.1.1 interface](media/ui-overview.png)
 
-*Verified application capture after an uncached NASA/JPL analysis for Shackleton
-Rim, 17 November 2026 at 18:09:35 UTC, 72 hours. The seconds controls and running
-timeline are visible. Terrain is illustrative; analysis is geometric only.*
+*Unity Play Mode capture of the v1.1.1 source after a real NASA/JPL analysis for
+Shackleton Rim, 18 November 2026 at 23:38:45 UTC, 72 hours. Terrain is illustrative;
+analysis is geometric only.*
 
 ## Install and run
 
-1. Open the [v1.1.0 release](https://github.com/Solayman-Sameh/lunar-navigator/releases/tag/v1.1.0).
+1. Open the [v1.1.1 release](https://github.com/Solayman-Sameh/lunar-navigator/releases/tag/v1.1.1).
 2. Download **LunarNavigator_Setup.exe**. The old standalone ZIP is superseded;
-   it does not represent the supported v1.1.0 installation.
+   it does not represent the supported v1.1.1 installation.
 3. Run setup and choose the installation folder. You can optionally create a
    desktop shortcut; setup also creates a Start menu entry.
 4. Launch **LunarNavigator** from its shortcut or the installed launcher.
@@ -60,7 +62,22 @@ The checksum detects changed or incomplete bytes; it is not a digital signature.
 Close the app before installing an update. Setup offers a destination-folder page
 on reinstalls too; choose the existing folder to update that installation.
 Logs, scientific cache and results are stored under `%LOCALAPPDATA%\LunarNavigator`.
-Uninstall through Windows **Installed apps**; uninstall preserves user data.
+Uninstall through Windows **Installed apps** after closing LunarNavigator. Setup
+removes its installed backend/player folders, including generated runtime caches,
+and removes the installation folder when empty. Unrelated files placed in that
+folder are preserved. Saved data under `%LOCALAPPDATA%\LunarNavigator` is preserved.
+
+## Finder search period
+
+The total search period contains the entire surface stay. A 28-day period with a
+4-day stay searches arrivals through day 24, every six hours; no candidate finishes
+after day 28. The period can be up to 31 days. A stay equal to the period tests one
+arrival; a longer stay is rejected.
+
+Click a date/time or duration number to type directly. **Enter** or leaving the
+field applies it; **Escape** cancels. Finder constraint values are also editable.
+Arrows, presets and sliders remain available. Invalid entries restore the previous
+value with an error message.
 
 ## First mission
 
@@ -184,13 +201,14 @@ deep staging paths can exceed Windows file-path limits when tests create hashed 
 
 ## Demo and release notes
 
-A narrated walkthrough is planned. `media/demo-record.mp4` is currently a local,
-empty placeholder and is deliberately excluded from Git. No playable video is
-claimed yet. [Media notes](media/README.md) describe the publication plan.
+The [narrated demonstration](https://github.com/Solayman-Sameh/lunar-navigator/releases/download/v1.1.1/LunarNavigator_Demo.mp4)
+is a separate Release asset, cropped to remove the recording borders. Its original
+audio is preserved. The MP4 is deliberately excluded from Git; see
+[media notes](media/README.md).
 
-See [v1.1.0 changes](CHANGELOG.md),
-[release notes](docs/RELEASE_NOTES_v1.1.0.md) and
-[validation scope](docs/RELEASE_VALIDATION.md).
+See [v1.1.1 changes](CHANGELOG.md),
+[release notes](docs/RELEASE_NOTES_v1.1.1.md) and
+[v1.1.1 validation](docs/RELEASE_VALIDATION_v1.1.1.md).
 
 ## Credits
 

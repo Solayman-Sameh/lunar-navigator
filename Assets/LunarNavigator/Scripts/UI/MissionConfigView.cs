@@ -36,12 +36,12 @@ namespace LunarNavigator.UI
         public bool IsLoading { get; private set; } = false;
 
         // Aerospace Stepper Labels
-        private Label lblYearVal;
-        private Label lblMonthVal;
-        private Label lblDayVal;
-        private Label lblHourVal;
-        private Label lblMinuteVal;
-        private Label lblSecondVal;
+        private EditableNumberSlot lblYearVal;
+        private EditableNumberSlot lblMonthVal;
+        private EditableNumberSlot lblDayVal;
+        private EditableNumberSlot lblHourVal;
+        private EditableNumberSlot lblMinuteVal;
+        private EditableNumberSlot lblSecondVal;
         public event Action OnCurrentTimeRequested;
 
         // Events
@@ -77,12 +77,12 @@ namespace LunarNavigator.UI
             var stepperRow = new VisualElement();
             stepperRow.AddToClassList("datetime-stepper-row");
 
-            lblYearVal = new Label(SelectedLandingUtc.Year.ToString("D4"));
-            lblMonthVal = new Label(SelectedLandingUtc.Month.ToString("D2"));
-            lblDayVal = new Label(SelectedLandingUtc.Day.ToString("D2"));
-            lblHourVal = new Label(SelectedLandingUtc.Hour.ToString("D2"));
-            lblMinuteVal = new Label(SelectedLandingUtc.Minute.ToString("D2"));
-            lblSecondVal = new Label(SelectedLandingUtc.Second.ToString("D2"));
+            lblYearVal = new EditableNumberSlot(SelectedLandingUtc.Year.ToString("D4"));
+            lblMonthVal = new EditableNumberSlot(SelectedLandingUtc.Month.ToString("D2"));
+            lblDayVal = new EditableNumberSlot(SelectedLandingUtc.Day.ToString("D2"));
+            lblHourVal = new EditableNumberSlot(SelectedLandingUtc.Hour.ToString("D2"));
+            lblMinuteVal = new EditableNumberSlot(SelectedLandingUtc.Minute.ToString("D2"));
+            lblSecondVal = new EditableNumberSlot(SelectedLandingUtc.Second.ToString("D2"));
 
             stepperRow.Add(CreateStepperUnit("year", lblYearVal, () => StepYear(1), () => StepYear(-1), 46f, "Step Year (±1y) · Use arrow buttons"));
             var sepYM = new Label("-") { name = "sep-ym" };
@@ -250,7 +250,14 @@ namespace LunarNavigator.UI
             UpdateChipStyles();
         }
 
-        private VisualElement CreateStepperUnit(string name, Label valLabel, Action onUp, Action onDown, float width, string tooltip)
+        bool ApplyTypedSlot(string part, int number)
+        {
+            if(!EditableNumberSlot.ReplaceDatePart(SelectedLandingUtc,part,number,out var date))return false;
+            SetLandingUtc(date);
+            return true;
+        }
+
+        private VisualElement CreateStepperUnit(string name, EditableNumberSlot valLabel, Action onUp, Action onDown, float width, string tooltip)
         {
             var unit = new VisualElement { name = "unit-" + name };
             unit.AddToClassList("stepper-unit");
@@ -264,6 +271,8 @@ namespace LunarNavigator.UI
 
             valLabel.name = "val-" + name;
             valLabel.AddToClassList("stepper-digit-box");
+            valLabel.tooltip = "Type a value; Enter or Tab to apply, Escape to cancel.";
+            valLabel.Bind(number => ApplyTypedSlot(name, (int)number), ShowError);
             unit.Add(valLabel);
 
             var downBtn = new Button(onDown) { text = "▼" };

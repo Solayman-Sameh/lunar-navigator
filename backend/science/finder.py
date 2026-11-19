@@ -14,6 +14,7 @@ class OpportunitiesRequest(BaseModel):
     model_config=ConfigDict(extra='forbid',allow_inf_nan=False)
     earliest_landing_utc:str
     search_window_h:float=Field(gt=0,le=744,strict=True)
+    search_window_mode:Literal['ARRIVAL_SPAN','CONTAINED_MISSION']='ARRIVAL_SPAN'
     mission_duration_h:float=Field(gt=0,le=744,strict=True)
     candidate_site_ids:list[str]=Field(min_length=1,max_length=3)
     min_sun_fraction:float=Field(default=.3,ge=0,le=1,strict=True)
@@ -29,6 +30,8 @@ class OpportunitiesRequest(BaseModel):
     def validate_grid(self):
         from .api import AnalyzeRequest
         if len(set(self.candidate_site_ids))!=len(self.candidate_site_ids): raise ValueError('duplicate candidate site IDs')
+        if self.search_window_mode == 'CONTAINED_MISSION' and self.mission_duration_h > self.search_window_h:
+            raise ValueError('surface stay must fit entirely inside the search period')
         step=self.sampling_step_minutes*60
         for h in (self.search_window_h,self.search_step_h,self.mission_duration_h):
             if not (h*3600).is_integer() or h*3600%step:raise ValueError('search and mission times must be whole source cells; no rounding')
@@ -39,10 +42,15 @@ class OpportunitiesRequest(BaseModel):
         return self
 
     def arrival_offsets(self):
+        if self.search_window_mode == 'CONTAINED_MISSION':
+            latest=int(self.search_window_h*3600)-int(self.mission_duration_h*3600)
+            return range(0,latest+1,int(self.search_step_h*3600))
         return range(0,int(self.search_window_h*3600),int(self.search_step_h*3600))
 
     @property
     def covering_hours(self):
+        if self.search_window_mode == 'CONTAINED_MISSION':
+            return self.search_window_h
         return (int(self.search_window_h*3600)+int(self.mission_duration_h*3600))/3600
 
 
@@ -80,5 +88,5 @@ def calculate_finder(body,cache_dir,run_dir):
             'constraints_note':'User-editable illustrative constraints; not NASA mission standards.',
             'limitations':['Sourced reference centers, not certified touchdown points; ground heights unverified.',
                 'Nominal-sphere GEOMETRIC_ONLY: no terrain obstruction, power/RF/safety certification.',
-                'Arrival range start inclusive/end exclusive; entire mission covered; source states left-held at selected cadence.'],
+                'Arrival starts sampled on search_step_h grid; CONTAINED_MISSION includes starts whose full stay ends at or before the period end; ARRIVAL_SPAN excludes arrival at the span end; source states left-held at selected cadence.'],
             **ranked}

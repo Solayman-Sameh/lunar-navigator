@@ -43,6 +43,7 @@
     <Reference Include="System.Web.Extensions" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="JobObject.cs" />
     <Compile Include="BackendSession.cs" />

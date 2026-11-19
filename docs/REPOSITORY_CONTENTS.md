@@ -12,7 +12,7 @@ It is not a dump of the developer workstation or the download distribution.
 | Launcher, installer definition and build/test scripts | Git | Rebuild the shipped package |
 | Proposal, science reference, contracts, attribution and current release notes | Git: curated docs | Maintained public documentation |
 | Fresh UI capture and small branding image | Git: `media/` | Public presentation |
-| Setup EXE and its matching SHA-256 text file | GitHub Release v1.1.0 assets | Download distribution and integrity check |
+| Setup EXE and its matching SHA-256 text file | GitHub Release assets | Download distribution and integrity check |
 | Completed narrated MP4 | Release asset or video host | Avoid large video blobs in Git history |
 | Empty MP4 placeholder | Local only | An empty file is not a demo |
 | `.agents/`, `.specify/`, `.codex/`, `specs/` | Local only | Agent instructions and planning workspace |
@@ -33,7 +33,7 @@ allowlisted. The hand-authored `launcher/LunarLauncher.csproj` is included even
 though Unity-generated project files are ignored.
 
 Ignoring a previously committed file does not remove it from Git. The v1.1.0
-release commit must remove excluded paths from its index while preserving their
+release removed excluded paths from the published source index while preserving their
 local copies. Old versions remain in repository history; no history rewrite or
 force-push is required for this cleanup.
 
@@ -43,16 +43,15 @@ The old standalone ZIP is superseded by setup and must not appear as the recomme
 download. No ZIP is tracked in the local baseline. Its remote release-asset state
 must be checked when authenticated GitHub access is available. Keep older releases
 as historical records, marked superseded; do not automatically delete their assets
-or rewrite old tags. New v1.1.0 assets should be only the setup and checksum, plus
-the narrated video after a real recording exists.
+or rewrite old tags. The v1.1.1 assets are the setup, its checksum, and the cropped narrated video.
 
 ## Before publication
 
 Check the exact staged tree, required Unity GUID assets, tests, relative links,
 secret patterns and release checksum. Build outputs are never staged. The published
 tag must refer to the reviewed release commit, and release notes must disclose
-the actual verification limits. README download instructions use the Releases
-page until v1.1.0 is actually published.
+the actual verification limits. README download instructions link directly to the current verified installer
+and narrated demo, with a link to the release page and checksum.
 
 ## Current audited decisions
 

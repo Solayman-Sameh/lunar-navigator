@@ -43,6 +43,7 @@ touchdown suitability are not verified. Explicit coordinates also work without a
 | latitude_deg | number or omitted/null | strictly -90 < latitude < 90, north positive; required with explicit longitude |
 | longitude_deg | number or omitted/null | -180 through 180 degrees east positive; never silently normalized |
 | landing_utc | string, required | exactly YYYY-MM-DDTHH:MM:SSZ; explicit UTC including time; no snapping |
+| search_window_mode | CONTAINED_MISSION (updated Unity app) or ARRIVAL_SPAN (legacy API default) |
 | mission_duration_h | number, required | finite, >0 and <=744 hours; duration in seconds must be a positive whole number of selected cells |
 | observer_height_m | number | default 2.0; finite 0–1000 m above the nominal source sphere, not verified terrain ground |
 | sampling_step_minutes | integer | default 10; 1–60; booleans/fractions rejected |
@@ -183,7 +184,7 @@ or booleans):
 | Field | Type / constraints / default |
 | --- | --- |
 | earliest_landing_utc | required explicit UTC string including seconds/Z, service date range as /analyze |
-| search_window_h | required number >0, <=744; defines half-open candidate-start range |
+| search_window_h | required number >0, <=744; total enclosing period in CONTAINED_MISSION; candidate-start span in ARRIVAL_SPAN |
 | mission_duration_h | required number >0, <=744; independently evaluated whole mission |
 | candidate_site_ids | required array of 1–3 distinct verified supported string IDs; unknown/unverified rejects 422 before NASA retrieval |
 | min_sun_fraction | number in [0,1], default 0.30 |
@@ -196,16 +197,20 @@ or booleans):
 | sampling_step_minutes | integer [1,60], default 10 |
 
 Window, step and mission durations must each be whole source-cell multiples.
-The covering search_window_h + mission_duration_h must be <=744 hours, within the
+In CONTAINED_MISSION, the stay must be <= search_window_h and coverage equals
+search_window_h. In legacy ARRIVAL_SPAN, coverage equals search_window_h +
+mission_duration_h. Coverage must be <=744 hours, within the
 service UTC bounds, and <=10001 instants per target. At most 1000 site-arrival
 scenarios are accepted. All fields are actually used. Source coverage is acquired
-once per site from earliest_landing_utc through earliest + search_window + mission,
+once per site from earliest_landing_utc through earliest + coverage,
 not once per arrival. Only an exactly matching validated cache may substitute for
 network acquisition. At most two fresh target requests per site normally occur;
 identical searches can use zero HTTP calls. Both targets must validate for every
 requested site, otherwise the request fails, with no fabricated partial ranking.
 
-Arrival UTCs are L0+j*search_step strictly less than L0+search_window. Each full
+In CONTAINED_MISSION, arrivals are L0+j*search_step with j>=0 and
+arrival+mission_duration <= L0+search_window (equality included on the grid).
+In ARRIVAL_SPAN, arrival UTCs are L0+j*search_step strictly less than L0+search_window. Each full
 mission [arrival, arrival+D) uses n-1 complete cells, never an extra terminal cell.
 A start at the search stop is excluded, but the last permitted mission is fully
 calculated. No longitude/date/site/mission stub or fixed December CSV is used.

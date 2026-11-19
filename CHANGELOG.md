@@ -1,5 +1,30 @@
 # Changelog
 
+## v1.1.1 - 2026-11-19
+
+### Fixed
+
+- Finder now fits each complete mission inside the total search period; a 28-day
+  period and four-day stay searches arrivals through day 24, on a six-hour grid.
+- Exact-fit stays test one arrival; longer stays are rejected before acquisition.
+- Uninstall cleans owned backend/player runtime leftovers and removes the empty
+  installation folder, preserving unrelated files and separately stored user data.
+
+### Improved
+
+- Direct typing in both UTC selectors, Finder days/hours and Finder constraints.
+- Enter/focus-loss commit, Escape cancel, validation and synchronization with
+  arrows, presets and sliders.
+- Clearer search-period labels, updated API contract/schema, and regression checks.
+- Cropped narrated demonstration distributed as a Release asset.
+
+### Compatibility
+
+- Updated Unity explicitly requests CONTAINED_MISSION. Existing API clients
+  retain ARRIVAL_SPAN semantics when the mode is omitted. Both components ship
+  together in the installer; old backend processes must be restarted in Editor use.
+
+
 ## v1.1.0 — prepared 2026-11-17
 
 ### Fixed

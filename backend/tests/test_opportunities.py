@@ -134,3 +134,47 @@ def test_default_14_day_grid_and_last_arrival():
     assert len(r.arrival_offsets())==56
     assert len(r.arrival_offsets())*len(r.candidate_site_ids)==168
     assert parse_utc(r.earliest_landing_utc)+timedelta(seconds=list(r.arrival_offsets())[-1])==parse_utc('2026-12-14T18:00:00Z')
+
+
+@pytest.mark.parametrize('stay', [72, 96, 168])
+def test_contained_28_day_period(api, stay):
+    from science.models import parse_utc
+    from datetime import timedelta
+    client, calls = api
+    response = client.post('/opportunities', json={**REQUEST,
+        'search_window_mode':'CONTAINED_MISSION', 'search_window_h':672,
+        'mission_duration_h':stay, 'candidate_site_ids':['connecting_ridge']})
+    assert response.status_code == 200, response.text
+    b = response.json()
+    start = parse_utc(REQUEST['earliest_landing_utc'])
+    end = start + timedelta(hours=672)
+    assert len(calls) == 2
+    assert b['arrival_count_per_site'] == (672-stay)//6+1
+    assert all(parse_utc(s['coverage_end_utc']) == end for s in b['sources'])
+    # Inspect every sampled offset, including the exact latest-arrival boundary.
+    from science.finder import OpportunitiesRequest
+    request = OpportunitiesRequest(**{**REQUEST, 'search_window_mode':'CONTAINED_MISSION',
+                                      'search_window_h':672,'mission_duration_h':stay})
+    assert list(request.arrival_offsets())[-1] == (672-stay)*3600
+    assert all(start+timedelta(seconds=offset, hours=stay) <= end for offset in request.arrival_offsets())
+
+
+@pytest.mark.parametrize('period,stay,count', [(24,24,1),(25,24,1),(30,24,2),(744,24,121)])
+def test_contained_boundaries(api,period,stay,count):
+    client,calls=api
+    r=client.post('/opportunities',json={**REQUEST,'search_window_mode':'CONTAINED_MISSION',
+        'search_window_h':period,'mission_duration_h':stay,'candidate_site_ids':['connecting_ridge']})
+    assert r.status_code==200,r.text
+    b=r.json()
+    assert b['evaluated_count']==count
+    from science.models import parse_utc
+    from datetime import timedelta
+    end=parse_utc(REQUEST['earliest_landing_utc'])+timedelta(hours=period)
+    assert all(parse_utc(c['mission_end_utc'])<=end for c in b['recommendations'])
+
+
+def test_contained_stay_too_long_never_fetches(api):
+    client,calls=api
+    r=client.post('/opportunities',json={**REQUEST,'search_window_mode':'CONTAINED_MISSION',
+        'search_window_h':24,'mission_duration_h':25})
+    assert r.status_code==422 and not calls

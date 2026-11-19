@@ -1,16 +1,10 @@
 # Presentation media
 
-- `ui-overview.png`: fresh capture from the current Unity application. The root
-  README identifies the retained NASA mission shown; it is not a generated mockup.
-- `app-icon.png`: copy of the application's supplied icon, for documentation.
-- `demo-record.mp4`: currently a local zero-byte placeholder, ignored by Git.
+`ui-overview.png` is a real application capture; `app-icon.png` is branding artwork.
 
-Record the narrated English walkthrough after verifying the installer. Suggested
-sequence: install/launch, choose site or custom coordinate, set UTC/duration,
-analyze, explain geometric-only results, scrub timeline, compare Finder arrivals,
-show navigation controls and About. Keep illustrative terrain distinct from
-scientific results and do not expose personal desktop information in the recording.
-
-Publish the completed MP4 as an additional GitHub Release asset or on a video host,
-then add a real video link to the README. Do not add an empty or large MP4 to Git
-history. Retain only small presentation images here.
+The narrated demonstration is distributed as `LunarNavigator_Demo.mp4` on the
+[v1.1.1 release](https://github.com/Solayman-Sameh/lunar-navigator/releases/tag/v1.1.1).
+The local MP4 is deliberately ignored by Git. Downloading source does not include
+it. The original recording is preserved outside the project. The released copy
+removes the outer recording borders without upscaling and preserves the original
+audio track. Release assets are downloadable files; embedded playback is not assumed.

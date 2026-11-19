@@ -208,6 +208,7 @@ namespace LunarNavigator.Data
     {
         public string earliest_landing_utc;
         public double search_window_h = 48.0;
+        public string search_window_mode = "CONTAINED_MISSION";
         public double mission_duration_h = 24.0;
         public string[] candidate_site_ids;
         public double min_sun_fraction = 0.30;

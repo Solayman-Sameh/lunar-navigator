@@ -211,6 +211,15 @@
             "exclusiveMinimum": 0.0,
             "title": "Search Window H"
           },
+          "search_window_mode": {
+            "type": "string",
+            "enum": [
+              "ARRIVAL_SPAN",
+              "CONTAINED_MISSION"
+            ],
+            "title": "Search Window Mode",
+            "default": "ARRIVAL_SPAN"
+          },
           "mission_duration_h": {
             "type": "number",
             "maximum": 744.0,

@@ -1,6 +1,6 @@
 # LunarNavigator — project proposal
 
-**NASA Space Apps Challenge project · v1.1.0 revision · 17 November 2026**
+**NASA Space Apps Challenge project · v1.1.1 revision · 19 November 2026**
 
 ## Purpose
 
@@ -78,6 +78,16 @@ not certified touchdown points. Inspector custom coordinates remain unverified.
 
 ## Verification
 
+The v1.1.1 update adds contained-period Finder searches, editable number slots and
+owned-folder uninstall cleanup. Current checks passed 166 backend/deployment tests,
+13 launcher checks, 24 numeric-entry checks, keyboard-event checks and five Finder
+UI request checks. Real NASA acquisition and a contained Finder search were checked
+with the bundled runtime. Isolated clean, preservation and v1.1.0 upgrade/uninstall
+cases passed. See [v1.1.1 validation](RELEASE_VALIDATION_v1.1.1.md) for limits.
+
+The following records describe the earlier v1.1.0 work:
+
+
 The v1.1.0 preparation run passed **158 backend/deployment tests**, **13 launcher
 regression checks**, and **two additional bundled-runtime lifecycle checks**.
 The icon refresh player build completed with zero errors and zero warnings.
@@ -118,8 +128,8 @@ Inspector points and illustrative local geometry must not be interpreted as
 terrain-validated landing assessments.
 
 Service coverage runs from 2018-01-01 through 2030-01-01 UTC, with the entire
-mission inside coverage. Maximum Inspector duration is 744 hours. Finder search
-span plus mission duration shares that cap. Cadence is 1–60 minutes; requests are
+mission inside coverage. Maximum Inspector duration is 744 hours. Finder uses a total period of at most 744 hours, with each full mission contained
+inside it. The legacy API arrival-span mode instead caps span plus mission duration. Cadence is 1–60 minutes; requests are
 limited to 10,001 source instants and 1,000 Finder scenarios. Exact cell alignment
 and combined limits can further restrict valid requests.
 

@@ -46,7 +46,7 @@ Write-Host "  Host Python:$HostPython"
 $UnityBuildSource = Join-Path $RepoRoot "Builds\Win64"
 $SourceManifest = Join-Path $UnityBuildSource "source-hashes.txt"
 if (-not (Test-Path $SourceManifest)) { throw "No Unity source manifest. Run Lunar Navigator/Build Windows 64-bit in the open Editor first." }
-if ((Get-Content (Join-Path $UnityBuildSource "release-version.txt") -Raw).Trim() -ne "1.1.0") { throw "Unity release version is not 1.1.0" }
+if ((Get-Content (Join-Path $UnityBuildSource "release-version.txt") -Raw).Trim() -ne "1.1.1") { throw "Unity release version is not 1.1.1" }
 $Entries = @(Get-Content $SourceManifest -Encoding UTF8)
 $CurrentFiles = @(foreach ($dir in @("Assets", "Packages", "ProjectSettings")) { Get-ChildItem (Join-Path $RepoRoot $dir) -Recurse -File })
 if ($Entries.Count -ne $CurrentFiles.Count) { throw "Unity source file set changed; rebuild player." }
@@ -150,6 +150,7 @@ if (-not $NetFrameworkRefDir) {
 }
 if (-not (Test-Path $NetFrameworkRefDir)) { throw ".NET Framework 4.8 targeting pack required; runtime assemblies are not a targeting pack." }
 $LauncherSources = @(
+    (Join-Path $RepoRoot "launcher\AssemblyInfo.cs"),
     (Join-Path $RepoRoot "launcher\NativeMethods.cs"),
     (Join-Path $RepoRoot "launcher\JobObject.cs"),
     (Join-Path $RepoRoot "launcher\BackendSession.cs"),
@@ -230,7 +231,7 @@ $Manifest = [ordered]@{
     "framework_reference_dir" = $NetFrameworkRefDir
     "unity_version" = "6000.6.3f1 HDRP"
     "inno_setup_version" = (Get-Item $IsccExe).VersionInfo.FileVersion
-    "app_version" = "1.1.0"
+    "app_version" = "1.1.1"
     "git_revision" = (& git -C $RepoRoot rev-parse HEAD)
     "git_status" = @(& git -C $RepoRoot status --porcelain)
 }

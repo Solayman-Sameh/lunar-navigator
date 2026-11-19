@@ -846,3 +846,16 @@ Button:disabled { opacity: 0.5; }
     -unity-text-align: middle-center;
     min-width: 32px;
 }
+
+/* Direct-entry number slots retain the compact stepper layout. */
+.editable-number-slot { margin: 0; padding: 0; min-width: 0; }
+.editable-number-slot > .unity-text-field__input {
+    background-color: #172433;
+    color: #eaf4ff;
+    border-width: 0;
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+    -unity-text-align: middle-center;
+}
+.editable-number-slot:focus { border-color: #59c8ff; }

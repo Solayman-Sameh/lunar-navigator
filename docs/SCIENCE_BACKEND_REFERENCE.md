@@ -1,6 +1,6 @@
 # Scientific backend reference
 
-**v1.1.0 application · GEOMETRIC_ONLY · 17 November 2026**
+**v1.1.1 application · GEOMETRIC_ONLY · 19 November 2026**
 
 The Python service computes sampled Sun/Earth visibility against a nominal lunar
 sphere. It does not evaluate local terrain obstruction or landing safety. Source
@@ -79,13 +79,15 @@ tested times. Closest misses in an empty search are not qualifying recommendatio
 ## API and operating limits
 
 The service exposes `GET /health`, `GET /sites`, `POST /analyze` and
-`POST /opportunities`. The application release is 1.1.0; the API/OpenAPI version
+`POST /opportunities`. The application release is 1.1.1; the API/OpenAPI version
 remains 1.0.0, algorithm identifier 0.1.0 and response `schema_version` 1. These
 are separate compatibility identifiers.
 
 - Complete service coverage: 2018-01-01 through 2030-01-01 UTC.
 - Inspector mission maximum: 744 hours.
-- Finder search span plus mission duration: at most 744 hours.
+- Finder total period: at most 744 hours; each full mission must fit inside it.
+  Updated Unity requests CONTAINED_MISSION. Legacy API clients default to
+  ARRIVAL_SPAN, where search span plus mission duration is capped at 744 hours.
 - Cadence: integer 1–60 minutes, with exact cell alignment.
 - At most 10,001 source instants per target and 1,000 Finder scenarios.
 - Up to three catalog sites; custom Inspector coordinates exclude the exact poles.

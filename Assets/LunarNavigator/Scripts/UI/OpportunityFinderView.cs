@@ -31,10 +31,10 @@ namespace LunarNavigator.UI
         public Slider SliderMaxDark { get; private set; }
         public Slider SliderMaxComm { get; private set; }
 
-        public Label LblMinSunVal { get; private set; }
-        public Label LblMinEarthVal { get; private set; }
-        public Label LblMaxDarkVal { get; private set; }
-        public Label LblMaxCommVal { get; private set; }
+        public EditableNumberSlot LblMinSunVal { get; private set; }
+        public EditableNumberSlot LblMinEarthVal { get; private set; }
+        public EditableNumberSlot LblMaxDarkVal { get; private set; }
+        public EditableNumberSlot LblMaxCommVal { get; private set; }
 
         // Ranking Policy
         public Button BtnPolicyBest { get; private set; }
@@ -63,20 +63,20 @@ namespace LunarNavigator.UI
         public bool IsLoading { get; private set; } = false;
 
         // Aerospace Segmented Stepper Labels
-        private Label lblYearVal;
-        private Label lblMonthVal;
-        private Label lblDayVal;
-        private Label lblHourVal;
-        private Label lblMinuteVal;
-        private Label lblSecondVal;
+        private EditableNumberSlot lblYearVal;
+        private EditableNumberSlot lblMonthVal;
+        private EditableNumberSlot lblDayVal;
+        private EditableNumberSlot lblHourVal;
+        private EditableNumberSlot lblMinuteVal;
+        private EditableNumberSlot lblSecondVal;
 
         // Segmented Duration Stepper Labels
-        private Label lblSearchDaysVal;
-        private Label lblSearchHoursVal;
+        private EditableNumberSlot lblSearchDaysVal;
+        private EditableNumberSlot lblSearchHoursVal;
         private Label lblSearchTotalH;
 
-        private Label lblStayDaysVal;
-        private Label lblStayHoursVal;
+        private EditableNumberSlot lblStayDaysVal;
+        private EditableNumberSlot lblStayHoursVal;
         private Label lblStayTotalH;
 
         // Duration Chips
@@ -134,7 +134,7 @@ namespace LunarNavigator.UI
             timeRow.AddToClassList("field-row");
             timeRow.style.marginTop = 6;
 
-            var lblEarliest = new Label("EARLIEST CANDIDATE ARRIVAL (UTC)");
+            var lblEarliest = new Label("SEARCH PERIOD START (UTC)");
             lblEarliest.AddToClassList("field-label");
             timeRow.Add(lblEarliest);
 
@@ -146,12 +146,12 @@ namespace LunarNavigator.UI
             var stepperRow = new VisualElement();
             stepperRow.AddToClassList("datetime-stepper-row");
 
-            lblYearVal = new Label(SelectedEarliestUtc.Year.ToString("D4"));
-            lblMonthVal = new Label(SelectedEarliestUtc.Month.ToString("D2"));
-            lblDayVal = new Label(SelectedEarliestUtc.Day.ToString("D2"));
-            lblHourVal = new Label(SelectedEarliestUtc.Hour.ToString("D2"));
-            lblMinuteVal = new Label(SelectedEarliestUtc.Minute.ToString("D2"));
-            lblSecondVal = new Label(SelectedEarliestUtc.Second.ToString("D2"));
+            lblYearVal = new EditableNumberSlot(SelectedEarliestUtc.Year.ToString("D4"));
+            lblMonthVal = new EditableNumberSlot(SelectedEarliestUtc.Month.ToString("D2"));
+            lblDayVal = new EditableNumberSlot(SelectedEarliestUtc.Day.ToString("D2"));
+            lblHourVal = new EditableNumberSlot(SelectedEarliestUtc.Hour.ToString("D2"));
+            lblMinuteVal = new EditableNumberSlot(SelectedEarliestUtc.Minute.ToString("D2"));
+            lblSecondVal = new EditableNumberSlot(SelectedEarliestUtc.Second.ToString("D2"));
 
             stepperRow.Add(CreateStepperUnit("year", lblYearVal, () => StepYear(1), () => StepYear(-1), 46f, "Step Year (±1y) · Use arrow buttons"));
             var sepYM = new Label("-") { name = "sep-ym" };
@@ -199,9 +199,9 @@ namespace LunarNavigator.UI
             secSearch.AddToClassList("field-row");
             secSearch.style.marginTop = 6;
 
-            var lblWin = new Label("SEARCH WINDOW (LOOKAHEAD)");
+            var lblWin = new Label("TOTAL SEARCH PERIOD");
             lblWin.AddToClassList("field-label");
-            lblWin.tooltip = "How far ahead from Earliest Arrival to scan for candidate landing opportunities.";
+            lblWin.tooltip = "Every candidate mission must start and finish within this period. Arrivals are sampled every 6 hours.";
             secSearch.Add(lblWin);
 
             TxtSearchWindowH = new TextField { value = SelectedSearchWindowH.ToString("F1", CultureInfo.InvariantCulture) };
@@ -215,8 +215,8 @@ namespace LunarNavigator.UI
 
             int initWinDays = (int)(SelectedSearchWindowH / 24);
             int initWinHours = (int)(SelectedSearchWindowH % 24);
-            lblSearchDaysVal = new Label(initWinDays.ToString("D2"));
-            lblSearchHoursVal = new Label(initWinHours.ToString("D2"));
+            lblSearchDaysVal = new EditableNumberSlot(initWinDays.ToString("D2"));
+            lblSearchHoursVal = new EditableNumberSlot(initWinHours.ToString("D2"));
             lblSearchTotalH = new Label($"({SelectedSearchWindowH:0.#} h total)");
             lblSearchTotalH.AddToClassList("stepper-total-tag");
             lblSearchTotalH.tooltip = "Total duration in cumulative hours";
@@ -271,8 +271,8 @@ namespace LunarNavigator.UI
 
             int initStayDays = (int)(SelectedMissionDurationH / 24);
             int initStayHours = (int)(SelectedMissionDurationH % 24);
-            lblStayDaysVal = new Label(initStayDays.ToString("D2"));
-            lblStayHoursVal = new Label(initStayHours.ToString("D2"));
+            lblStayDaysVal = new EditableNumberSlot(initStayDays.ToString("D2"));
+            lblStayHoursVal = new EditableNumberSlot(initStayHours.ToString("D2"));
             lblStayTotalH = new Label($"({SelectedMissionDurationH:0.#} h total)");
             lblStayTotalH.AddToClassList("stepper-total-tag");
             lblStayTotalH.tooltip = "Total duration in cumulative hours";
@@ -360,44 +360,56 @@ namespace LunarNavigator.UI
             rSun.AddToClassList("row");
             rSun.style.justifyContent = Justify.SpaceBetween;
             var lSun = new Label("Min Sun-visible:"); lSun.AddToClassList("subtle"); rSun.Add(lSun);
-            LblMinSunVal = new Label("30%"); LblMinSunVal.AddToClassList("subtle"); rSun.Add(LblMinSunVal);
+            LblMinSunVal = new EditableNumberSlot("30%"); LblMinSunVal.AddToClassList("subtle"); rSun.Add(LblMinSunVal);
             Add(rSun);
             SliderMinSun = new Slider(0f, 100f) { value = 30f };
-            SliderMinSun.RegisterValueChangedCallback(evt => LblMinSunVal.text = $"{evt.newValue:F0}%");
+            SliderMinSun.RegisterValueChangedCallback(evt => LblMinSunVal.text = $"{evt.newValue:0.##}%");
             Add(SliderMinSun);
+            LblMinSunVal.name="val-SliderMinSun"; LblMinSunVal.style.width=55;
+            LblMinSunVal.tooltip="Type a value in percent.";
+            LblMinSunVal.Bind(n => { if(n<SliderMinSun.lowValue || n>SliderMinSun.highValue)return false; SliderMinSun.value=(float)n; LblMinSunVal.text=SliderMinSun.value.ToString("0.##",CultureInfo.InvariantCulture); return true; },ShowError,false);
 
             // Min Earth Slider
             var rEarth = new VisualElement();
             rEarth.AddToClassList("row");
             rEarth.style.justifyContent = Justify.SpaceBetween;
             var lEarth = new Label("Min Earth-visible:"); lEarth.AddToClassList("subtle"); rEarth.Add(lEarth);
-            LblMinEarthVal = new Label("40%"); LblMinEarthVal.AddToClassList("subtle"); rEarth.Add(LblMinEarthVal);
+            LblMinEarthVal = new EditableNumberSlot("40%"); LblMinEarthVal.AddToClassList("subtle"); rEarth.Add(LblMinEarthVal);
             Add(rEarth);
             SliderMinEarth = new Slider(0f, 100f) { value = 40f };
-            SliderMinEarth.RegisterValueChangedCallback(evt => LblMinEarthVal.text = $"{evt.newValue:F0}%");
+            SliderMinEarth.RegisterValueChangedCallback(evt => LblMinEarthVal.text = $"{evt.newValue:0.##}%");
             Add(SliderMinEarth);
+            LblMinEarthVal.name="val-SliderMinEarth"; LblMinEarthVal.style.width=55;
+            LblMinEarthVal.tooltip="Type a value in percent.";
+            LblMinEarthVal.Bind(n => { if(n<SliderMinEarth.lowValue || n>SliderMinEarth.highValue)return false; SliderMinEarth.value=(float)n; LblMinEarthVal.text=SliderMinEarth.value.ToString("0.##",CultureInfo.InvariantCulture); return true; },ShowError,false);
 
             // Max Dark Slider
             var rDark = new VisualElement();
             rDark.AddToClassList("row");
             rDark.style.justifyContent = Justify.SpaceBetween;
             var lDark = new Label("Max Continuous Dark:"); lDark.AddToClassList("subtle"); rDark.Add(lDark);
-            LblMaxDarkVal = new Label("36h"); LblMaxDarkVal.AddToClassList("subtle"); rDark.Add(LblMaxDarkVal);
+            LblMaxDarkVal = new EditableNumberSlot("36h"); LblMaxDarkVal.AddToClassList("subtle"); rDark.Add(LblMaxDarkVal);
             Add(rDark);
             SliderMaxDark = new Slider(0f, 72f) { value = 36f };
-            SliderMaxDark.RegisterValueChangedCallback(evt => LblMaxDarkVal.text = $"{evt.newValue:F0}h");
+            SliderMaxDark.RegisterValueChangedCallback(evt => LblMaxDarkVal.text = $"{evt.newValue:0.##}h");
             Add(SliderMaxDark);
+            LblMaxDarkVal.name="val-SliderMaxDark"; LblMaxDarkVal.style.width=55;
+            LblMaxDarkVal.tooltip="Type a value in hours.";
+            LblMaxDarkVal.Bind(n => { if(n<SliderMaxDark.lowValue || n>SliderMaxDark.highValue)return false; SliderMaxDark.value=(float)n; LblMaxDarkVal.text=SliderMaxDark.value.ToString("0.##",CultureInfo.InvariantCulture); return true; },ShowError,false);
 
             // Max Comm Gap Slider
             var rComm = new VisualElement();
             rComm.AddToClassList("row");
             rComm.style.justifyContent = Justify.SpaceBetween;
             var lComm = new Label("Max Comms Outage:"); lComm.AddToClassList("subtle"); rComm.Add(lComm);
-            LblMaxCommVal = new Label("48h"); LblMaxCommVal.AddToClassList("subtle"); rComm.Add(LblMaxCommVal);
+            LblMaxCommVal = new EditableNumberSlot("48h"); LblMaxCommVal.AddToClassList("subtle"); rComm.Add(LblMaxCommVal);
             Add(rComm);
             SliderMaxComm = new Slider(0f, 72f) { value = 48f };
-            SliderMaxComm.RegisterValueChangedCallback(evt => LblMaxCommVal.text = $"{evt.newValue:F0}h");
+            SliderMaxComm.RegisterValueChangedCallback(evt => LblMaxCommVal.text = $"{evt.newValue:0.##}h");
             Add(SliderMaxComm);
+            LblMaxCommVal.name="val-SliderMaxComm"; LblMaxCommVal.style.width=55;
+            LblMaxCommVal.tooltip="Type a value in hours.";
+            LblMaxCommVal.Bind(n => { if(n<SliderMaxComm.lowValue || n>SliderMaxComm.highValue)return false; SliderMaxComm.value=(float)n; LblMaxCommVal.text=SliderMaxComm.value.ToString("0.##",CultureInfo.InvariantCulture); return true; },ShowError,false);
 
             // 6. Ranking Policy Chips
             Add(CreateSectionHeaderWithInfo(
@@ -505,7 +517,25 @@ namespace LunarNavigator.UI
             return headerRow;
         }
 
-        private VisualElement CreateStepperUnit(string name, Label valLabel, Action onUp, Action onDown, float width, string tooltip)
+        bool ApplyTypedSlot(string part, int number)
+        {
+            if(part.StartsWith("search-") || part.StartsWith("stay-"))
+            {
+                bool search=part.StartsWith("search-");
+                bool days=part.EndsWith("days");
+                if(number<0 || number>(days?31:23))return false;
+                double old=search?SelectedSearchWindowH:SelectedMissionDurationH;
+                double total=days?number*24+old%24:Math.Floor(old/24)*24+number;
+                if(total<(search?6:1) || total>744)return false;
+                if(search)SetSearchSpan(total);else SetMissionDuration(total);
+                return true;
+            }
+            if(!EditableNumberSlot.ReplaceDatePart(SelectedEarliestUtc,part,number,out var date))return false;
+            SetEarliestUtc(date);
+            return true;
+        }
+
+        private VisualElement CreateStepperUnit(string name, EditableNumberSlot valLabel, Action onUp, Action onDown, float width, string tooltip)
         {
             var unit = new VisualElement { name = "unit-" + name };
             unit.AddToClassList("stepper-unit");
@@ -519,6 +549,8 @@ namespace LunarNavigator.UI
 
             valLabel.name = "val-" + name;
             valLabel.AddToClassList("stepper-digit-box");
+            valLabel.tooltip = "Type a value; Enter or Tab to apply, Escape to cancel.";
+            valLabel.Bind(number => ApplyTypedSlot(name, (int)number), ShowError);
             unit.Add(valLabel);
 
             var downBtn = new Button(onDown) { text = "▼" };
@@ -573,6 +605,7 @@ namespace LunarNavigator.UI
             {
                 TxtEarliestUtc.value = SelectedEarliestUtc.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture) + " UTC";
             }
+            UpdateWindowSummary();
             ClearError();
         }
 
@@ -597,7 +630,7 @@ namespace LunarNavigator.UI
                 ? (stayHours > 0 ? $"{stayDays} d {stayHours} h" : $"{stayDays} day{(stayDays > 1 ? "s" : "")}")
                 : $"{stayHours} h";
 
-            lblWindowSummary.text = $"Searching candidate landings across next {winText} ({SelectedSearchWindowH:0.#} h) for a {stayText} ({SelectedMissionDurationH:0.#} h) surface stay.";
+            lblWindowSummary.text = $"Find a {stayText} ({SelectedMissionDurationH:0.#} h) stay entirely within {winText} ({SelectedSearchWindowH:0.#} h). Arrivals sampled every 6 h; latest possible arrival is {SelectedEarliestUtc.AddHours(Math.Max(0, SelectedSearchWindowH - SelectedMissionDurationH)).ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)} UTC.";
         }
 
         private void UpdateSearchSpanDisplay()
@@ -764,7 +797,7 @@ namespace LunarNavigator.UI
                double.IsNaN(span) || double.IsInfinity(span) || span<=0 || span>744 ||
                double.IsNaN(mission) || double.IsInfinity(mission) || mission<=0 || mission>744)
             {
-                ShowError("Enter a valid UTC date/time and positive search/mission hours (maximum combined 744 h).");
+                ShowError("Enter a valid UTC date/time and positive search/mission hours (search period up to 744 h; surface stay must fit inside it).");
                 return;
             }
             SelectedEarliestUtc=earliest.ToUniversalTime();
@@ -777,17 +810,17 @@ namespace LunarNavigator.UI
             }
 
             DateTime maxBackendAllowedEnd = new DateTime(2030, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            DateTime evaluatedEnd = SelectedEarliestUtc.AddHours(SelectedSearchWindowH + SelectedMissionDurationH);
+            DateTime evaluatedEnd = SelectedEarliestUtc.AddHours(SelectedSearchWindowH);
             if (evaluatedEnd > maxBackendAllowedEnd)
             {
                 ShowError($"Evaluation window ends at {evaluatedEnd:yyyy-MM-dd HH:mm} UTC, which exceeds backend limit of 2030-01-01T00:00:00Z.");
                 return;
             }
 
-            double totalSpan = SelectedSearchWindowH + SelectedMissionDurationH;
-            if (totalSpan > 744.0)
+            double totalSpan = SelectedSearchWindowH;
+            if (SelectedMissionDurationH > totalSpan)
             {
-                ShowError($"Search span ({SelectedSearchWindowH}h) + Mission duration ({SelectedMissionDurationH}h) = {totalSpan:F1}h exceeds maximum allowed 744 hours.");
+                ShowError($"Surface stay ({SelectedMissionDurationH} h) must fit inside the search period ({SelectedSearchWindowH} h). Increase the period or shorten the stay.");
                 return;
             }
 
@@ -801,6 +834,7 @@ namespace LunarNavigator.UI
             {
                 earliest_landing_utc = SelectedEarliestUtc.ToString("yyyy-MM-ddTHH:mm:ss'Z'", CultureInfo.InvariantCulture),
                 search_window_h = SelectedSearchWindowH,
+                search_window_mode = "CONTAINED_MISSION",
                 mission_duration_h = SelectedMissionDurationH,
                 candidate_site_ids = new List<string>(selectedSiteIds).ToArray(),
                 min_sun_fraction = SliderMinSun.value / 100.0,

@@ -20,7 +20,7 @@ namespace LunarNavigator.Editor
             File.Delete(Path.Combine(buildDir, "source-hashes.txt"));
 
             PlayerSettings.productName = "Lunar Navigator";
-            PlayerSettings.bundleVersion = "1.1.0";
+            PlayerSettings.bundleVersion = "1.1.1";
             const string iconPath = "Assets/LunarNavigator/Resources/Branding/LunarNavigator.png";
             var importer = (TextureImporter)AssetImporter.GetAtPath(iconPath);
             importer.textureType = TextureImporterType.Sprite;

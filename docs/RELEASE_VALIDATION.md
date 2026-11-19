@@ -1,5 +1,7 @@
 # v1.1.0 release verification
 
+Current release checks are in [v1.1.1 validation](RELEASE_VALIDATION_v1.1.1.md). The remainder records the earlier v1.1.0 work.
+
 **Prepared 17 November 2026. This record does not itself claim GitHub publication.**
 
 ## Latest local package
